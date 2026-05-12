@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>autocosm.xyz / Harshit Jain</title>
+<meta name="description" content="Harshit Jain. Founder of Verissimus." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* Canela Italic — Commercial Type. Used only for headlines on this personal site.
+     Drop the licensed Canela-Italic.woff2 into /fonts/ on deploy.
+     Until then, Fraunces italic carries the role. */
+  @font-face {
+    font-family: 'Canela';
+    src: url('fonts/Canela-Italic.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+  :root {
+    --void: #000000;
+
+    --paper: #ede2dc;
+    --paper-2: #e3d7d0;
+    --paper-deep: #d4c5bc;
+    --ink: #0a0a0a;
+    --ink-2: #3a3833;
+    --ink-3: #6a655a;
+    --ink-faint: #9a948a;
+    --rule: #d0c1b5;
+
+    --thread: #b80012;          /* Margiela red — identity color: stitches, live, underlines */
+    --gain: #4a7a3d;            /* restrained racing green — used ONLY for realised gains in track record */
+
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --canela: 'Canela', 'Fraunces', 'Times New Roman', serif;
+    --sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--void);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    background:
+      radial-gradient(ellipse 90% 30% at 50% 100%, rgba(80, 60, 30, 0.10), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 35, 25, 0.06), transparent 80%),
+      var(--void);
+    background-attachment: fixed;
+  }
+  ::selection { background: var(--ink); color: var(--paper); }
+  a { color: inherit; text-decoration: none; cursor: pointer; }
+
+  /* the single-point center seam — Kubrick monolith corridor */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; bottom: 0; left: 50%;
+    width: 1px;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(255, 250, 235, 0.025) 30%,
+      rgba(255, 250, 235, 0.04) 50%,
+      rgba(255, 250, 235, 0.025) 70%,
+      transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  }
+
+  /* menubar — autocosm.xyz */
+  .menubar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 26px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    color: rgba(240, 235, 222, 0.55);
+    pointer-events: none;
+  }
+  .menubar .left {
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .menubar .right {
+    display: flex; gap: 12px; align-items: center;
+    color: rgba(240, 235, 222, 0.55);
+  }
+  .menubar .right .clock { color: var(--paper); }
+
+  /* THE APPLICATION WINDOW */
+  .app-frame {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(1180px, calc(100vw - 80px));
+    height: min(820px, calc(100vh - 80px));
+    background: var(--paper);
+    border-radius: 8px;
+    box-shadow:
+      0 60px 140px -30px rgba(0, 0, 0, 0.85),
+      0 30px 60px -20px rgba(0, 0, 0, 0.5),
+      0 0 0 0.5px rgba(255, 250, 235, 0.08);
+    overflow: hidden;
+    z-index: 10;
+    display: grid;
+    grid-template-rows: 32px 1fr;
+  }
+
+  /* four red stitches at corners of the WINDOW */
+  .stitch {
+    position: absolute;
+    width: 16px; height: 2px;
+    background: var(--thread);
+    pointer-events: none;
+    z-index: 30;
+  }
+  .stitch.tl { top: 14px; left: 14px; transform: rotate(45deg); }
+  .stitch.tr { top: 14px; right: 14px; transform: rotate(-45deg); }
+  .stitch.bl { bottom: 14px; left: 14px; transform: rotate(-45deg); }
+  .stitch.br { bottom: 14px; right: 14px; transform: rotate(45deg); }
+
+  /* window title bar */
+  .title-bar {
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    user-select: none;
+    position: relative;
+    z-index: 5;
+  }
+  .title-bar .traffic { display: flex; gap: 7px; align-items: center; }
+  .title-bar .traffic .dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    background: var(--paper-deep);
+  }
+  .title-bar .traffic .dot:nth-child(1) { background: var(--paper-deep); }
+  .title-bar .traffic .dot:nth-child(2) { background: var(--paper-deep); opacity: 0.6; }
+  .title-bar .traffic .dot:nth-child(3) { background: var(--paper-deep); opacity: 0.3; }
+  .title-bar .center {
+    text-align: center;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  .title-bar .center .vrsms {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0;
+    color: var(--ink);
+    margin-right: 8px;
+    text-transform: none;
+  }
+  .title-bar .right {
+    text-align: right;
+    color: var(--ink-faint);
+    font-size: 9.5px;
+  }
+  .title-bar .right .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--thread);
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  /* sidebar + content */
+  .app-body {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    background: var(--paper-2);
+    border-right: 1px solid var(--rule);
+    overflow-y: auto;
+    padding: 18px 0 14px;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 0; }
+
+  .sb-search {
+    margin: 0 14px 18px;
+    padding: 7px 10px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .sb-search svg { width: 11px; height: 11px; opacity: 0.5; }
+
+  .sb-group {
+    padding: 10px 14px 6px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .sb-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: baseline;
+    gap: 2px;
+    margin: 1px 8px;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    border-radius: 0;
+    color: var(--ink);
+  }
+  .sb-item:hover { background: var(--paper-deep); }
+  .sb-item.active { background: var(--ink); color: var(--paper); }
+  .sb-item.active .sb-num { color: var(--paper); opacity: 0.55; }
+  .sb-item.dim { opacity: 0.32; cursor: default; }
+  .sb-item.dim:hover { background: transparent; opacity: 0.5; }
+  .sb-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+    font-weight: 500;
+  }
+  .sb-name {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .sb-name .vrsms-mark {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    object-fit: contain;
+    transition: filter 0.15s;
+  }
+  .sb-item.active .sb-name .vrsms-mark {
+    filter: invert(1) brightness(1.05);
+  }
+  .sb-rule { height: 1px; background: var(--rule); margin: 8px 14px; }
+
+  .sb-foot {
+    padding: 14px 16px 0;
+    margin-top: 12px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+  }
+  .sb-foot a {
+    display: block;
+    color: var(--ink-2);
+    transition: color 0.15s;
+  }
+  .sb-foot a:hover { color: var(--ink); }
+
+  /* content */
+  .content {
+    overflow-y: auto;
+    padding: 0;
+    background: var(--paper);
+    position: relative;
+  }
+  .content::-webkit-scrollbar { width: 6px; }
+  .content::-webkit-scrollbar-thumb { background: var(--rule); }
+
+  .note {
+    padding: 56px 80px 80px;
+    max-width: 760px;
+    margin: 0 auto;
+    display: none;
+  }
+  .note.active { display: block; }
+
+  .note-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .note-meta .lineno { color: var(--ink); font-weight: 500; }
+
+  .note h1 {
+    font-family: var(--canela);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(40px, 5.5vw, 68px);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    color: var(--ink);
+    font-variation-settings: "opsz" 144;
+  }
+  .note h1 em { font-style: italic; color: var(--ink-2); font-variation-settings: "opsz" 144; }
+  .note h1 .h1-mark {
+    width: 0.9em;
+    height: 0.9em;
+    object-fit: contain;
+    margin-right: 0.18em;
+    vertical-align: -0.07em;
+    display: inline-block;
+  }
+
+  /* VERISSIMUS — head row with right-aligned emblem */
+  .vrsms-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 8px;
+  }
+  .vrsms-head-text { flex: 1; min-width: 0; }
+  .vrsms-head-text h1 { margin-bottom: 8px; }
+  .vrsms-head-text .lede { margin-bottom: 0; }
+  .vrsms-emblem {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  /* the thesis paragraph that now sits between head and stats */
+  .vrsms-thesis {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 56ch;
+    margin: 28px 0 4px;
+  }
+  .vrsms-thesis strong {
+    color: var(--ink);
+    font-weight: 500;
+    font-style: italic;
+  }
+  @media (max-width: 680px) {
+    .vrsms-emblem { width: 72px; height: 72px; }
+    .vrsms-thesis { font-size: 17px; }
+  }
+
+  .note .lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink-2);
+    margin-bottom: 36px;
+    max-width: 38ch;
+    font-variation-settings: "opsz" 144;
+  }
+
+  /* PARADOX-COUPLET — sits between h1 and lede, two short lines holding a held tension */
+  .note .couplet {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.35;
+    color: var(--ink);
+    margin: 4px 0 28px;
+    max-width: 44ch;
+    padding-left: 14px;
+    border-left: 2px solid var(--thread);
+  }
+  .note .couplet em { font-style: italic; color: var(--ink); }
+  .note .couplet .a {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .note .couplet .b {
+    display: block;
+    color: var(--ink-2);
+  }
+
+  /* WORLDVIEW — numbered paradox-paragraphs, each one a held position */
+  .worldview-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 16px;
+    counter-reset: pos;
+  }
+  .worldview-list li {
+    counter-increment: pos;
+    padding: 26px 0 28px;
+    border-top: 1px solid var(--rule);
+    position: relative;
+    padding-left: 56px;
+  }
+  .worldview-list li:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+  .worldview-list li::before {
+    content: counter(pos, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 30px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+  .worldview-list li .head {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .worldview-list li .body {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    max-width: 58ch;
+  }
+  .worldview-list li .body em {
+    font-family: var(--serif); font-style: italic;
+    font-size: 1.05em; color: var(--ink);
+  }
+  .worldview-list li .body strong { color: var(--ink); font-weight: 600; }
+  .worldview-list li.tight {
+    /* shorter variant for single-line aphorisms with no body */
+  }
+  .worldview-list li.tight .head {
+    margin-bottom: 0;
+  }
+
+  /* WORLDVIEW INTRO — slightly bigger, no number, sits above the list */
+  .worldview-intro {
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 8px 0 40px;
+    max-width: 44ch;
+    font-style: italic;
+  }
+  .worldview-intro em { font-style: normal; color: var(--ink-2); }
+
+  .note h2 {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 36px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .note p {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 16px;
+    max-width: 60ch;
+  }
+  .note p em { font-family: var(--serif); font-style: italic; font-size: 1.05em; color: var(--ink-2); }
+  .note p strong { font-weight: 600; color: var(--ink); }
+  /* underlines — Margiela red */
+  .note p a {
+    color: var(--ink);
+    border-bottom: 1.5px solid var(--thread);
+    padding-bottom: 1px;
+    transition: opacity 0.15s;
+  }
+  .note p a:hover { opacity: 0.65; }
+
+  .index-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 14px;
+  }
+  .index-list li {
+    padding: 8px 0;
+    border-top: 1px solid var(--rule);
+    font-size: 14.5px;
+    line-height: 1.55;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .index-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .index-list li .lno {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+  }
+  .index-list li em { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 1.05em; }
+
+  /* FUND */
+  .fund-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin: 28px 0 36px;
+    padding: 22px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .fund-stats.two {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 480px;
+  }
+  .fund-stats .stat .k {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+  .fund-stats .stat .v {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 144;
+  }
+  .fund-stats .stat .v em { font-style: italic; }
+  .fund-stats .stat .sub {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .fy {
+    margin-bottom: 14px;
+    padding: 16px 0 14px;
+    border-top: 1px solid var(--rule);
+  }
+  .fy:last-of-type { border-bottom: 1px solid var(--rule); margin-bottom: 0; }
+  .fy-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .fy-name {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  /* CAGR figure now uses GAIN green when positive — proper finance signaling */
+  .fy-cagr {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--gain);
+  }
+  .fy-cagr.live { color: var(--ink-2); font-style: italic; }
+  .fy-cagr.live::before {
+    content: "● ";
+    color: var(--thread);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  .positions { display: flex; flex-wrap: wrap; gap: 5px; }
+  .pos {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 5px 9px;
+    border: 1px solid var(--rule);
+    font-size: 12.5px;
+    transition: all 0.15s;
+  }
+  .pos:hover { border-color: var(--ink); }
+  .pos .nm { font-family: var(--sans); font-weight: 500; color: var(--ink); }
+  .pos .mx {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  /* the upward arrow on sold positions — GREEN, the finance convention for gains */
+  .pos.sold .mx::after {
+    content: " ↗";
+    color: var(--gain);
+    font-weight: 700;
+  }
+  .pos.held .mx { color: var(--ink-2); }
+
+  .pos-legend {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pos-legend .arr {
+    color: var(--gain);
+    font-weight: 700;
+    margin: 0 4px;
+  }
+
+  .principles {
+    list-style: none;
+    padding: 0;
+    margin-top: 12px;
+  }
+  .principles li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 60ch;
+  }
+  .principles li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--ink-faint);
+  }
+
+  /* COMPANIES inside Verissimus */
+  .co-list { list-style: none; padding: 0; margin-top: 14px; }
+  .co {
+    display: grid;
+    grid-template-columns: 26px 1fr 80px;
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
+    align-items: baseline;
+    cursor: pointer;
+    transition: padding-left 0.2s;
+  }
+  .co:last-child { border-bottom: 1px solid var(--rule); }
+  .co:hover { padding-left: 6px; }
+  .co .co-num { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+  .co .co-name {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+  .co .co-name em { font-style: italic; color: var(--ink-2); }
+  .co .co-name .role {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .co .co-name .desc {
+    display: block;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    color: var(--ink-2);
+    margin-top: 6px;
+    line-height: 1.55;
+    max-width: 56ch;
+  }
+  .co .co-tag {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  /* DYEUS — the closing block, "Become Your Story" as the punctuation */
+  .dyeus-hero {
+    margin-top: 40px;
+    padding: 56px 36px 48px;
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+    text-align: center;
+  }
+  .dyeus-hero .meaning {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(240, 235, 222, 0.55);
+    margin-bottom: 22px;
+  }
+  .dyeus-hero h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 60px);
+    line-height: 1.0;
+    letter-spacing: -0.018em;
+    margin-bottom: 28px;
+    color: var(--paper);
+  }
+  .dyeus-hero h3 em { font-style: italic; }
+  .dyeus-hero a.cta {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper);
+    border-bottom: 1.5px solid var(--thread);
+    padding-bottom: 3px;
+    transition: opacity 0.2s;
+  }
+  .dyeus-hero a.cta:hover { opacity: 0.7; }
+
+  /* WRITING */
+  .essays { list-style: none; padding: 0; margin-top: 14px; }
+  .essay {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    gap: 14px;
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+    align-items: baseline;
+    cursor: pointer;
+    transition: padding-left 0.2s;
+  }
+  .essay:last-child { border-bottom: 1px solid var(--rule); }
+  .essay:hover { padding-left: 6px; }
+  .essay .dt {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .essay .ess-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .essay .read {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    text-align: right;
+  }
+  a.essay { text-decoration: none; color: inherit; }
+  a.essay:hover .ess-title { color: var(--thread); }
+  .essay .ess-title em { font-style: italic; color: var(--thread); }
+
+  /* Substack post embeds — 2x2 grid on desktop, stacked on mobile.
+     Substack's embed script renders post cards via shadow DOM; we can only style the container.
+     The fallback content inside each .substack-post-embed renders as a styled card
+     if the embed script can't load (CSP block, ad blocker, offline preview, etc.). */
+  .substack-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .substack-grid .substack-post-embed {
+    min-height: 160px;
+    padding: 24px 22px;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    transition: border-color 0.2s, background 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .substack-grid .substack-post-embed:hover {
+    border-color: var(--thread);
+    background: var(--paper);
+  }
+  /* fallback content styling — text inside the embed div before/if Substack's script replaces it */
+  .substack-grid .substack-post-embed p:first-of-type {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.25;
+    color: var(--ink);
+    margin: 0;
+  }
+  .substack-grid .substack-post-embed p:nth-of-type(2) {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+  .substack-grid .substack-post-embed a[data-post-link] {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    text-decoration: none;
+    align-self: flex-start;
+    padding-bottom: 2px;
+    border-bottom: 1.5px solid var(--thread);
+    transition: color 0.2s, background 0.2s;
+  }
+  .substack-grid .substack-post-embed a[data-post-link]:hover {
+    background: var(--thread);
+    color: var(--paper);
+  }
+  @media (max-width: 720px) {
+    .substack-grid { grid-template-columns: 1fr; }
+  }
+
+  /* SOUND / MUSIC */
+  .sound-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 14px;
+  }
+  .tr {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    gap: 12px;
+    padding: 9px 0;
+    border-top: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .tr:last-child { border-bottom: 1px solid var(--rule); }
+  .tr .n { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+  .tr .nm { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink); }
+  .tr .mt { font-family: var(--mono); font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.04em; }
+
+  /* Music · originals announcement */
+  .music-coming {
+    margin: 18px 0 44px;
+    padding: 36px 28px;
+    border: 1px solid var(--rule);
+    border-top: 1px solid var(--ink);
+    background: var(--paper-2);
+    text-align: left;
+  }
+  .music-coming .cs-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+  }
+  .music-coming .cs-line {
+    font-family: var(--serif);
+    font-size: clamp(36px, 4.4vw, 52px);
+    line-height: 1.0;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+  }
+  .music-coming .cs-line em {
+    font-style: italic;
+    color: var(--ink);
+  }
+  .music-coming .cs-line::after {
+    content: " ●";
+    color: var(--thread);
+    font-size: 0.45em;
+    vertical-align: middle;
+    margin-left: 8px;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  /* Spotify embeds — 2x2 grid on desktop, stacked on mobile */
+  .spotify-embeds {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .spotify-embed {
+    width: 100%;
+    height: 352px;
+    border: 0;
+    border-radius: 12px;
+    display: block;
+    background: #121212;
+  }
+  @media (max-width: 720px) {
+    .spotify-embeds {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* MOODBOARD — exhibition catalogue treatment */
+  .moodboard {
+    column-count: 3;
+    column-gap: 8px;
+    margin-top: 14px;
+  }
+  .moodboard figure {
+    margin: 0;
+  }
+  .mb {
+    break-inside: avoid;
+    margin: 0 0 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--rule);
+    aspect-ratio: var(--ar, 3/4);
+    background: #0a0a0a;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .mb:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8);
+    z-index: 2;
+  }
+  .mb.img img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .mb.img:hover img {
+    transform: scale(1.02);
+  }
+  /* the stamps — shown on image plates only, with a soft scrim so they're legible against any photo */
+  .mb.img .stamp {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 18px 10px 8px;
+    font-family: var(--mono); font-size: 8.5px;
+    color: #f0ebde;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%);
+    pointer-events: none;
+  }
+  .mb.img .id {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-family: var(--mono); font-size: 9px;
+    color: #f0ebde;
+    letter-spacing: 0.08em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+    opacity: 0.85;
+    font-style: italic;
+  }
+  /* TEXT PLATES — wall labels next to the artworks */
+  .mb.text {
+    aspect-ratio: auto;
+    padding: 22px 18px;
+    background: var(--paper-2);
+    border-color: var(--rule);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 140px;
+  }
+  .mb.text .cat {
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .mb.text .body {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .mb.text .body em {
+    font-style: italic;
+    color: var(--ink);
+  }
+  .mb.text.quote .body {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+  .mb.text .attr {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  .moodboard-note {
+    margin-top: 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    line-height: 1.6;
+    max-width: 60ch;
+  }
+
+  /* CONTACT */
+  .contact-block { margin-top: 14px; }
+  .contact-block .email {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(28px, 4vw, 44px);
+    color: var(--ink);
+    border-bottom: 2px solid var(--thread);
+    padding-bottom: 4px;
+    transition: opacity 0.2s;
+    display: inline-block;
+  }
+  .contact-block .email:hover { opacity: 0.65; }
+  .contact-block .channels {
+    margin-top: 28px; display: flex; gap: 22px; flex-wrap: wrap;
+    font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .contact-block .channels a {
+    border-bottom: 1.5px solid var(--thread);
+    padding-bottom: 2px; transition: opacity 0.2s;
+  }
+  .contact-block .channels a:hover { opacity: 0.65; }
+  .contact-block .filter {
+    margin-top: 36px;
+    padding: 20px 22px;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.6;
+    max-width: 56ch;
+  }
+  .contact-block .filter strong { color: var(--ink); font-weight: 600; }
+  .contact-block .filter ul { list-style: none; padding: 0; margin-top: 8px; }
+  .contact-block .filter li { padding-left: 14px; position: relative; margin-bottom: 4px; }
+  .contact-block .filter li::before { content: "·"; position: absolute; left: 4px; color: var(--ink-faint); }
+
+  /* dim easter eggs */
+  .dim-popup {
+    padding: 56px 80px 80px;
+    text-align: center;
+    color: var(--ink-faint);
+  }
+  .dim-popup .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 96px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+  .dim-popup .msg {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  @media (max-width: 820px) {
+    html, body { overflow: auto; }
+    .menubar { font-size: 9px; padding: 0 12px; }
+    .app-frame {
+      position: relative;
+      transform: none;
+      top: 0; left: 0;
+      width: 100%; height: auto;
+      min-height: 100vh;
+      border-radius: 0;
+      margin-top: 26px;
+      grid-template-rows: 28px 1fr;
+    }
+    .app-body {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+    }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--rule); padding: 12px 0; }
+    .stitch { width: 12px; }
+    .stitch.tl, .stitch.tr { top: 32px; }
+    .note { padding: 32px 22px 60px; }
+    .note h1 { font-size: clamp(36px, 9vw, 56px); }
+    .fund-stats { grid-template-columns: 1fr 1fr; gap: 16px; }
+    .sound-grid { grid-template-columns: 1fr; gap: 24px; }
+    .moodboard { column-count: 2; }
+    .essay { grid-template-columns: 64px 1fr; }
+    .essay .read { display: none; }
+    .co { grid-template-columns: 22px 1fr; }
+    .co .co-tag { grid-column: 2; padding-left: 0; margin-top: 4px; text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header class="menubar">
+  <div class="left">autocosm.xyz</div>
+  <div class="right">
+    <span id="clock-bom">—</span>
+    <span>Mumbai</span>
+    <span style="opacity: 0.5;">·</span>
+    <span id="clock-nyc">—</span>
+    <span>NYC</span>
+  </div>
+</header>
+
+<main class="app-frame">
+
+  <span class="stitch tl"></span>
+  <span class="stitch tr"></span>
+  <span class="stitch bl"></span>
+  <span class="stitch br"></span>
+
+  <div class="title-bar">
+    <div class="traffic">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+    <div class="center">
+      A WORKING INDEX OF HARSHIT JAIN
+    </div>
+    <div class="right">
+      <span class="live-dot"></span>LIVE · FY26&ndash;27
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <aside class="sidebar">
+      <div class="sb-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>Search</span>
+      </div>
+
+      <div class="sb-group">Pinned</div>
+      <div class="sb-item active" data-note="index">
+        <span class="sb-num">00</span>
+        <div class="sb-name">Index</div>
+      </div>
+      <div class="sb-item" data-note="worldview">
+        <span class="sb-num">01</span>
+        <div class="sb-name">Worldview</div>
+      </div>
+      <div class="sb-item" data-note="fund">
+        <span class="sb-num">02</span>
+        <div class="sb-name"><img class="vrsms-mark" src="verissimus-mark.png" alt="" />Verissimus</div>
+      </div>
+      <div class="sb-item" data-note="dyeus">
+        <span class="sb-num">03</span>
+        <div class="sb-name">Dyeus</div>
+      </div>
+      <div class="sb-item" data-note="sound">
+        <span class="sb-num">04</span>
+        <div class="sb-name">Music</div>
+      </div>
+      <div class="sb-item" data-note="moodboard">
+        <span class="sb-num">05</span>
+        <div class="sb-name">Moodboard</div>
+      </div>
+
+      <div class="sb-rule"></div>
+      <div class="sb-group">Lines · open</div>
+      <div class="sb-item dim" data-note="dim-06"><span class="sb-num">06</span><div class="sb-name">—</div></div>
+      <div class="sb-item dim" data-note="dim-07"><span class="sb-num">07</span><div class="sb-name">—</div></div>
+      <div class="sb-item dim" data-note="dim-08"><span class="sb-num">08</span><div class="sb-name">—</div></div>
+      <div class="sb-item dim" data-note="dim-09"><span class="sb-num">09</span><div class="sb-name">—</div></div>
+      <div class="sb-item dim" data-note="dim-10"><span class="sb-num">10</span><div class="sb-name">—</div></div>
+      <div class="sb-item dim" data-note="dim-23"><span class="sb-num">··· 23</span><div class="sb-name">—</div></div>
+
+      <div class="sb-foot">
+        <a href="https://x.com/harshitj_">x · harshitj_</a>
+        <a href="https://instagram.com/harshitj_">ig · harshitj_</a>
+        <a href="https://intellectualdegen.substack.com">substack · intellectualdegen</a>
+        <a href="mailto:jefe@dyeus.app">jefe@dyeus.app</a>
+      </div>
+    </aside>
+
+    <section class="content">
+
+      <article class="note active" data-note="index">
+        <div class="note-meta">
+          <span><span class="lineno">Line 00</span> · Pinned · Index</span>
+          <span>[ voice-mark, optional ]</span>
+        </div>
+        <h1>Harshit <em>Jain</em></h1>
+
+        <div class="couplet">
+          <span class="a"><em>[ paradox line A — the first half of the held tension. ]</em></span>
+          <span class="b"><em>[ paradox line B — the second half, the one that breaks the symmetry. ]</em></span>
+        </div>
+
+        <p class="lede">[ lede — one short sentence. The frame, not the description. ]</p>
+
+        <p>[ body paragraph one. ]</p>
+
+        <p>[ body paragraph two. ]</p>
+
+        <h2>Index of lines</h2>
+        <ul class="index-list">
+          <li><span class="lno">00</span><span><strong>Index.</strong> &nbsp;<em>This page.</em></span></li>
+          <li><span class="lno">01</span><span><strong>Worldview.</strong> &nbsp;<em>Positions, and the writing they generate.</em></span></li>
+          <li><span class="lno">02</span><span><strong>Verissimus.</strong> &nbsp;<em>The fund.</em></span></li>
+          <li><span class="lno">03</span><span><strong>Dyeus.</strong> &nbsp;<em>The consciousness company. Self as a Service.</em></span></li>
+          <li><span class="lno">04</span><span><strong>Music.</strong> &nbsp;<em>Originals coming. Playlists, on rotation.</em></span></li>
+          <li><span class="lno">05</span><span><strong>Moodboard.</strong> &nbsp;<em>References, materials, cinema.</em></span></li>
+          <li><span class="lno">06–23</span><span style="opacity: 0.45;"><em>Open lines.</em></span></li>
+        </ul>
+      </article>
+
+      <!-- ════════ 01 · WORLDVIEW ════════ -->
+      <article class="note" data-note="worldview">
+        <div class="note-meta">
+          <span><span class="lineno">Line 01</span> · Pinned · Worldview</span>
+          <span>[ voice-mark, optional ]</span>
+        </div>
+        <h1>Worldview<em>.</em></h1>
+
+        <p class="worldview-intro"><em>[ opener line — the single sentence that frames everything below. ]</em></p>
+
+        <h2>In motion · the writing</h2>
+
+        <p class="lede" style="margin-top: 4px; margin-bottom: 20px; font-size: 18px;">[ one line on what the writing is. Suggestion: "These positions, worked out in public." ]</p>
+
+        <div class="substack-grid">
+          <div class="substack-post-embed">
+            <p lang="en">Picasso's greatest mistake</p>
+            <p>By Harshit Jain</p>
+            <a data-post-link href="https://intellectualdegen.substack.com/p/picassos-greatest-mistake">Read on Substack</a>
+          </div>
+          <div class="substack-post-embed">
+            <p lang="en">Distribution is definitely not a…</p>
+            <p>By Harshit Jain</p>
+            <a data-post-link href="https://intellectualdegen.substack.com/p/distribution-is-definitely-not-a">Read on Substack</a>
+          </div>
+          <div class="substack-post-embed">
+            <p lang="en">Authenticity is dead</p>
+            <p>By Harshit Jain</p>
+            <a data-post-link href="https://intellectualdegen.substack.com/p/authenticity-is-dead">Read on Substack</a>
+          </div>
+          <div class="substack-post-embed">
+            <p lang="en">AI is the anti-bubble</p>
+            <p>By Harshit Jain</p>
+            <a data-post-link href="https://intellectualdegen.substack.com/p/ai-is-the-anti-bubble">Read on Substack</a>
+          </div>
+        </div>
+
+        <p class="substack-cta" style="margin-top: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2);">Everything on Substack → <a href="https://intellectualdegen.substack.com">intellectualdegen.substack.com</a></p>
+
+        <h2 style="margin-top: 80px;">Positions</h2>
+
+        <ol class="worldview-list">
+          <li>
+            <div class="head">[ position one — the headline aphorism, italic serif, paradox-pair if it fits. ]</div>
+            <div class="body">[ optional body — one to three sentences expanding it. Leave empty to render as a tight aphorism. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position two. ]</div>
+            <div class="body">[ body, if any. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position three. ]</div>
+            <div class="body">[ body. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position four. ]</div>
+            <div class="body">[ body. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position five. ]</div>
+            <div class="body">[ body. ]</div>
+          </li>
+          <li class="tight">
+            <div class="head">[ position six — example of a tight aphorism with no body. Use the <code>tight</code> class on the li when there's no body paragraph. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position seven. ]</div>
+            <div class="body">[ body. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position eight. ]</div>
+            <div class="body">[ body. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position nine. ]</div>
+            <div class="body">[ body. ]</div>
+          </li>
+          <li>
+            <div class="head">[ position ten — closing position, the one the document lands on. ]</div>
+            <div class="body">[ body. ]</div>
+          </li>
+        </ol>
+      </article>
+
+      <article class="note" data-note="fund">
+        <div class="note-meta">
+          <span><span class="lineno">Line 02</span> · Pinned · Verissimus</span>
+          <span>5 May 2026 · Active</span>
+        </div>
+
+        <div class="vrsms-head">
+          <div class="vrsms-head-text">
+            <h1><em>Verissimus.</em></h1>
+            <p class="lede">The truest one.</p>
+          </div>
+          <img class="vrsms-emblem" src="verissimus-mark.png" alt="Verissimus mark" />
+        </div>
+
+        <p class="vrsms-thesis">I fell in love with finance because I saw the <strong>artistry</strong> in it. Finance is wasted on soulless extraction when it could be used to inform and structure the <strong>greatest value creation</strong> ever seen.</p>
+
+        <div class="fund-stats two">
+          <div class="stat">
+            <div class="k">2-Year CAGR</div>
+            <div class="v"><em>32%</em></div>
+            <div class="sub">FY24–25 + FY25–26</div>
+          </div>
+          <div class="stat">
+            <div class="k">Full-time since</div>
+            <div class="v">2024</div>
+            <div class="sub">10 years studying</div>
+          </div>
+        </div>
+
+        <h2>Track record · selected positions</h2>
+
+        <div class="fy">
+          <div class="fy-head">
+            <span class="fy-name">FY 24–25</span>
+            <span class="fy-cagr">+42% CAGR</span>
+          </div>
+          <div class="positions">
+            <span class="pos sold"><span class="nm">Olectra Greentech</span><span class="mx">8x</span></span>
+            <span class="pos sold"><span class="nm">Kore Digital</span><span class="mx">8x</span></span>
+            <span class="pos held"><span class="nm">Eternal</span><span class="mx">6x</span></span>
+            <span class="pos sold"><span class="nm">IREDA</span><span class="mx">5x</span></span>
+            <span class="pos held"><span class="nm">HAL</span><span class="mx">5x</span></span>
+            <span class="pos held"><span class="nm">GMR Urban</span><span class="mx">5x</span></span>
+            <span class="pos held"><span class="nm">Bluestar</span><span class="mx">5x</span></span>
+            <span class="pos held"><span class="nm">Laurus Labs</span><span class="mx">4x</span></span>
+            <span class="pos held"><span class="nm">BHEL</span><span class="mx">3.5x</span></span>
+            <span class="pos held"><span class="nm">ZTech</span><span class="mx">3x</span></span>
+            <span class="pos held"><span class="nm">JSW Steel</span><span class="mx">2x</span></span>
+            <span class="pos held"><span class="nm">Vedanta</span><span class="mx">2x</span></span>
+          </div>
+        </div>
+
+        <div class="fy">
+          <div class="fy-head">
+            <span class="fy-name">FY 25–26</span>
+            <span class="fy-cagr">+23% CAGR</span>
+          </div>
+          <div class="positions">
+            <span class="pos sold"><span class="nm">HindCopper</span><span class="mx">2x</span></span>
+            <span class="pos sold"><span class="nm">Chennai Petro</span><span class="mx">2x</span></span>
+            <span class="pos held"><span class="nm">HBL Engineering</span><span class="mx">2x</span></span>
+            <span class="pos sold"><span class="nm">RPSG</span><span class="mx">+35%</span></span>
+            <span class="pos held"><span class="nm">Alpex Solar</span><span class="mx">+30%</span></span>
+          </div>
+        </div>
+
+        <div class="fy">
+          <div class="fy-head">
+            <span class="fy-name">FY 26–27 · one month in</span>
+            <span class="fy-cagr live">live</span>
+          </div>
+          <div class="positions">
+            <span class="pos sold"><span class="nm">MTAR Tech</span><span class="mx">2x</span></span>
+            <span class="pos held"><span class="nm">Gravita</span><span class="mx">+40%</span></span>
+            <span class="pos held"><span class="nm">Praj Industries</span><span class="mx">+30%</span></span>
+            <span class="pos held"><span class="nm">HPL Electric</span><span class="mx">+25%</span></span>
+          </div>
+        </div>
+        <div class="pos-legend">selected positions only ·<span class="arr">↗</span>realised, sold · others held</div>
+      </article>
+
+      <article class="note" data-note="dyeus">
+        <div class="note-meta">
+          <span><span class="lineno">Line 03</span> · Pinned · Dyeus</span>
+          <span>[ voice-mark, optional ]</span>
+        </div>
+        <h1><em>Dyeus.</em></h1>
+
+        <div class="couplet">
+          <span class="a"><em>[ paradox line A — optional. Delete the entire .couplet div if you don't want one on Dyeus. ]</em></span>
+          <span class="b"><em>[ paradox line B. ]</em></span>
+        </div>
+
+        <p class="lede">A consciousness company. Inventing a category of its own — <em>Self as a Service.</em></p>
+
+        <p>Gen-Z has already chosen astrology as their preferred medium to deal with their mental health. To deal with the anxiety, doom, and crippling meaninglessness of existing in the 21st century.</p>
+
+        <p>We're the only ones building a product that solves for it &mdash; rather than using their fear and insecurity to sell them baseless remedies and charge per minute for vague generalisations.</p>
+
+        <p>A system that holds the full complexity of a human life across time. Your patterns. Your contradictions. The gap between who you know yourself to be and how you actually live.</p>
+
+        <p>Something modern astrology and modern psychology haven't been able to solve for.</p>
+
+        <p>Combining multimodal astrology, Jungian psychology, daily journaling, Spotify, Instagram &mdash; everything a person generates about their inner life &mdash; into one longitudinal portrait that gets more accurate every day.</p>
+
+        <p>A living record of your patterns, your contradictions, the parts of yourself you keep circling back to without knowing why.</p>
+
+        <p>Not a profile. Not a personality type.</p>
+
+        <p>Something closer to a container for your inner world.</p>
+
+        <p>A canvas and companion who understands you better than you, and helps you become the story you tell yourself every night.</p>
+
+        <div class="dyeus-hero">
+          <div class="meaning">Dyeus</div>
+          <h3><em>Become Your Story.</em></h3>
+          <a href="https://dyeus.app" class="cta">dyeus.app →</a>
+        </div>
+      </article>
+
+      <article class="note" data-note="sound">
+        <div class="note-meta">
+          <span><span class="lineno">Line 04</span> · Music</span>
+          <span>[ voice-mark, optional ]</span>
+        </div>
+        <h1>Music<em>.</em></h1>
+
+        <!-- Originals announcement — replaces the placeholder Originals column -->
+        <div class="music-coming">
+          <div class="cs-label">Originals</div>
+          <div class="cs-line"><em>Coming soon.</em></div>
+        </div>
+
+        <h2>On rotation</h2>
+
+        <div class="spotify-embeds">
+          <iframe class="spotify-embed"
+            style="border-radius: 12px"
+            src="https://open.spotify.com/embed/playlist/48cv127uqDzWKGE3R7mx6O?utm_source=generator"
+            width="100%" height="352" frameBorder="0" loading="lazy"
+            allowfullscreen
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            title="Spotify · You ready?"></iframe>
+
+          <iframe class="spotify-embed"
+            style="border-radius: 12px"
+            src="https://open.spotify.com/embed/playlist/5NK7EE3BqQ8CX7cMYOXETi?utm_source=generator"
+            width="100%" height="352" frameBorder="0" loading="lazy"
+            allowfullscreen
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            title="Spotify · Fuck that fuck this fuck it"></iframe>
+
+          <iframe class="spotify-embed"
+            style="border-radius: 12px"
+            src="https://open.spotify.com/embed/playlist/4OOfsQAGlaCsSODy7okyDR?utm_source=generator"
+            width="100%" height="352" frameBorder="0" loading="lazy"
+            allowfullscreen
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            title="Spotify · LoveStoned"></iframe>
+
+          <iframe class="spotify-embed"
+            style="border-radius: 12px"
+            src="https://open.spotify.com/embed/playlist/6oWLCwN317KUWQsNR8TNFL?utm_source=generator"
+            width="100%" height="352" frameBorder="0" loading="lazy"
+            allowfullscreen
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            title="Spotify · Haōshoku"></iframe>
+        </div>
+      </article>
+
+      <article class="note" data-note="moodboard">
+        <div class="note-meta">
+          <span><span class="lineno">Line 05</span> · Moodboard</span>
+          <span></span>
+        </div>
+        <h1>Moodboard<em>.</em></h1>
+
+        <div class="moodboard">
+
+          <figure class="mb img" style="--ar: 0.918;"><img src="moodboard/07-mushashi-infinite.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.778;"><img src="moodboard/06-2001-pod.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.0;"><img src="moodboard/08-cosmic-hands.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.659;"><img src="moodboard/05-watchmen-pink-sand.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.667;"><img src="moodboard/12-alchemical-hand.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.028;"><img src="moodboard/09-cosmic-self.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.8;"><img src="moodboard/10-sacred-seriousness.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.677;"><img src="moodboard/17-found-family.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.03;"><img src="moodboard/18-bed-made-of-money.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.823;"><img src="moodboard/03-aviator-premiere.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.664;"><img src="moodboard/14-runway-walker-bw.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.722;"><img src="moodboard/19-kanye-olivier-balmain.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.488;"><img src="moodboard/16-gainsbourg-birkin.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.778;"><img src="moodboard/13-larochefoucauld-quote.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.8;"><img src="moodboard/15-red-rave-cathedral.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 1.0;"><img src="moodboard/04-tv-hand-spark.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.722;"><img src="moodboard/02-winged-statue.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.995;"><img src="moodboard/11-skeleton-mandala.jpg" alt="" loading="lazy" /></figure>
+          <figure class="mb img" style="--ar: 0.837;"><img src="moodboard/01-disney-storybook.jpg" alt="" loading="lazy" /></figure>
+
+        </div>
+      </article>
+
+      <article class="note" data-note="dim-06"><div class="dim-popup"><div class="num"><em>06</em></div><div class="msg">Open line · awaiting</div></div></article>
+      <article class="note" data-note="dim-07"><div class="dim-popup"><div class="num"><em>07</em></div><div class="msg">Open line · awaiting</div></div></article>
+      <article class="note" data-note="dim-08"><div class="dim-popup"><div class="num"><em>08</em></div><div class="msg">Open line · awaiting</div></div></article>
+      <article class="note" data-note="dim-09"><div class="dim-popup"><div class="num"><em>09</em></div><div class="msg">Open line · awaiting</div></div></article>
+      <article class="note" data-note="dim-10"><div class="dim-popup"><div class="num"><em>10</em></div><div class="msg">Open line · awaiting</div></div></article>
+      <article class="note" data-note="dim-11"><div class="dim-popup"><div class="num"><em>11</em></div><div class="msg">Open line · awaiting</div></div></article>
+      <article class="note" data-note="dim-23"><div class="dim-popup"><div class="num"><em>23</em></div><div class="msg">Reserved</div></div></article>
+
+    </section>
+  </div>
+</main>
+
+<script>
+  const clockBom = document.getElementById('clock-bom');
+  const clockNyc = document.getElementById('clock-nyc');
+  function tick() {
+    const now = new Date();
+    const fmt = (tz) => new Intl.DateTimeFormat('en-GB', {
+      timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false
+    }).format(now);
+    clockBom.textContent = fmt('Asia/Kolkata');  // Mumbai shares Asia/Kolkata zone (IST)
+    clockNyc.textContent = fmt('America/New_York');
+  }
+  tick(); setInterval(tick, 30000);
+
+  const items = document.querySelectorAll('.sb-item');
+  const notes = document.querySelectorAll('.note');
+  const content = document.querySelector('.content');
+
+  function selectNote(id) {
+    items.forEach(i => i.classList.toggle('active', i.dataset.note === id));
+    notes.forEach(n => n.classList.toggle('active', n.dataset.note === id));
+    content.scrollTop = 0;
+  }
+
+  items.forEach(item => {
+    item.addEventListener('click', () => selectNote(item.dataset.note));
+  });
+
+  document.querySelectorAll('a[data-jump]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectNote(a.dataset.jump);
+    });
+  });
+
+  document.querySelectorAll('[data-jump-co]').forEach(el => {
+    el.addEventListener('click', () => selectNote(el.dataset.jumpCo));
+  });
+</script>
+
+<!-- Substack post embeds — script loads asynchronously and replaces each .substack-post-embed div with a styled post card -->
+<script async src="https://substack.com/embedjs/embed.js"></script>
+
+</body>
+</html>
