@@ -407,6 +407,82 @@ body.hud-off .hud { opacity: 0; }
   .hud__corner::before { width: 16px; }
   .hud__corner::after { height: 16px; }
 }
+
+/* ── Mobile — drop the laptop chrome, go full-screen ── */
+@media (max-width: 768px) {
+  /* Fill the whole screen */
+  .stage-room {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .laptop {
+    width: 100%;
+    max-height: none;
+    aspect-ratio: unset;
+    height: 100%;
+    filter: none;
+    border-radius: 0;
+  }
+  .laptop__screen {
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .laptop__screen-inner {
+    border-radius: 0;
+  }
+  /* Hide laptop decorations */
+  .laptop__camera,
+  .laptop__notch,
+  .laptop__glare,
+  .laptop__base,
+  .laptop__lip { display: none; }
+
+  /* Nav bar — bigger tap targets */
+  .dn { height: 48px; padding: 0 10px; gap: 6px; }
+  .dn__arrow { width: 32px; height: 32px; font-size: 18px; }
+  .dn__dot { padding: 6px 6px; }
+  .dn__dot-label { font-size: 8px; letter-spacing: 0.14em; }
+
+  /* Me slide */
+  .me__title { font-size: clamp(44px, 18vw, 80px); }
+  .me__defn  { font-size: clamp(13px, 3.5vw, 18px); }
+
+  /* Verissimus — stack columns */
+  .vr { padding: 14px 16px; gap: 12px; grid-template-rows: auto auto auto 1fr auto; overflow-y: auto; }
+  .vr__lede { grid-template-columns: 1fr; gap: 10px; }
+  .vr__stat { border-right: none; border-bottom: 1px solid rgba(120,180,140,0.18); padding-right: 0; padding-bottom: 10px; }
+  .vr__stat-num { font-size: clamp(48px, 16vw, 80px); }
+  .vr__bio { border-left: none; border-top: 1px solid rgba(120,180,140,0.18); padding-left: 0; padding-top: 10px; }
+  .vr__ledger { grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
+  .vr__lcol--wide { grid-column: span 2; }
+  .vr__lcol--wide .vr__lcol-rows { grid-template-columns: 1fr 1fr; grid-template-rows: unset; }
+
+  /* Dyeus */
+  .dy { padding: 16px 20px; gap: 14px; }
+  .dy__name { font-size: clamp(40px, 14vw, 80px); }
+  .dy__body { grid-template-columns: 1fr; gap: 14px; }
+  .dy__col--cognates { grid-template-columns: 1fr 1fr; }
+
+  /* Worldview */
+  .wv { padding: 14px 16px; gap: 10px; overflow-y: auto; }
+  .wv__name { font-size: clamp(24px, 9vw, 48px); }
+  .wv__essays-grid { grid-template-columns: 1fr; grid-template-rows: unset; gap: 8px; }
+  .wv__tweets-row { grid-template-columns: 1fr; }
+
+  /* Music */
+  .mu { padding: 14px 16px; gap: 10px; overflow-y: auto; }
+  .mu__name { font-size: clamp(24px, 9vw, 48px); }
+  .mu__grid { grid-template-columns: 1fr; grid-template-rows: unset; gap: 10px; }
+  .mu__cell { min-height: 160px; }
+
+  /* Moodboard */
+  .mb__wall { column-count: 2; }
+
+  /* HUD — hide on mobile (too cluttered) */
+  .hud { display: none; }
+}
   </style>
 </head>
 <body>
