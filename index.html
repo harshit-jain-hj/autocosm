@@ -1,0 +1,1304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>autocosm — a self-generating universe</title>
+  <style>
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  background: #1a1612;
+  color: #1a1a1a;
+  font-family: 'Helvetica Neue', Helvetica, 'Inter', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  position: relative;
+}
+button, input, select { font-family: inherit; }
+a { color: inherit; }
+
+.backdrop {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse at 30% 18%, rgba(245,225,180,0.18), transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(60,40,30,0.55), transparent 60%),
+    linear-gradient(135deg, #3a322b 0%, #2a2420 45%, #1d1916 100%);
+  overflow: hidden;
+}
+.backdrop image-slot { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.backdrop .vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at center, transparent 30%, rgba(0,0,0,0.40) 65%, rgba(0,0,0,0.85) 100%),
+    radial-gradient(ellipse at top, transparent 50%, rgba(0,0,0,0.35) 100%);
+  z-index: 1;
+}
+.backdrop .grain {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.12; mix-blend-mode: overlay;
+  background-image:
+    repeating-radial-gradient(circle at 13% 17%, rgba(255,255,255,0.4) 0 1px, transparent 1px 3px),
+    repeating-radial-gradient(circle at 78% 62%, rgba(0,0,0,0.4) 0 1px, transparent 1px 4px);
+  z-index: 1;
+}
+
+.stage-room {
+  position: fixed; inset: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  padding: 4vh 4vw 0; pointer-events: none;
+}
+.laptop {
+  pointer-events: auto;
+  width: min(96vw, 1480px); max-height: 88vh;
+  aspect-ratio: 16 / 10; position: relative;
+  filter: drop-shadow(0 30px 40px rgba(0,0,0,0.5));
+}
+.laptop__screen {
+  position: absolute; inset: 0; background: #0d0c0a; border-radius: 14px;
+  padding: 14px 14px 22px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.08);
+  display: flex; flex-direction: column;
+}
+.laptop__camera {
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  width: 5px; height: 5px; border-radius: 50%; background: #1a1916;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+.laptop__screen-inner {
+  flex: 1; min-height: 0; background: #f3f1ec; border-radius: 4px; overflow: hidden; position: relative;
+}
+.laptop__notch {
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 0 0 6px 6px;
+}
+.laptop__glare {
+  position: absolute; inset: 14px 14px 22px; border-radius: 4px; pointer-events: none;
+  background: linear-gradient(120deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 25%, transparent 50%);
+  mix-blend-mode: screen; z-index: 3;
+}
+.laptop__base {
+  position: absolute; left: -3.5%; right: -3.5%; bottom: -1.4%; height: 1.4%;
+  background: linear-gradient(180deg, #1f1d1a 0%, #0d0c0a 100%);
+  border-radius: 0 0 8px 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+.laptop__lip {
+  position: absolute; left: 42%; right: 42%; bottom: -1.4%; height: 1.4%;
+  background: #050505; border-radius: 0 0 6px 6px;
+}
+
+#root, .deck { height: 100%; }
+.deck { display: flex; flex-direction: column; position: relative; }
+.deck__viewport { flex: 1; min-height: 0; position: relative; overflow: hidden; background: #f3f1ec; }
+.deck__slide {
+  position: absolute; inset: 0;
+  container-type: inline-size; container-name: slide;
+  animation: slideIn 0.45s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.deck.tf-serif { --body: 'Cambria', 'Georgia', 'Times New Roman', serif; }
+.deck.tf-sans  { --body: 'Helvetica Neue', Helvetica, 'Inter', Arial, sans-serif; }
+.deck.tf-mono  { --body: 'SF Mono','Menlo','Consolas',monospace; }
+
+.dn {
+  flex: 0 0 auto; height: 38px;
+  background: rgba(15, 14, 12, 0.92); backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  font-family: 'SF Mono','Menlo','Consolas',monospace;
+  color: rgba(255,232,200,0.7); font-size: 10px; letter-spacing: 0.16em;
+}
+.dn__arrow {
+  width: 22px; height: 22px; border-radius: 4px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.1); color: rgba(255,232,200,0.8);
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 15px; line-height: 1; padding: 0; transition: background 0.15s;
+}
+.dn__arrow:hover { background: rgba(255,255,255,0.06); }
+.dn__dots { display: flex; gap: 4px; flex: 1; align-items: center; overflow: hidden; }
+.dn__dot {
+  display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 4px;
+  background: transparent; border: 0; padding: 6px 10px; flex: 1; cursor: pointer;
+  color: inherit; min-width: 0;
+}
+.dn__dot-bar { height: 2px; background: rgba(255,232,200,0.18); transition: background 0.2s; }
+.dn__dot:hover .dn__dot-bar { background: rgba(255,232,200,0.4); }
+.dn__dot.is-active .dn__dot-bar { background: oklch(0.78 0.14 60); }
+.dn__dot-label {
+  text-transform: uppercase; font-size: 9px; letter-spacing: 0.22em;
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  opacity: 0.55; transition: opacity 0.2s;
+}
+.dn__dot:hover .dn__dot-label { opacity: 0.85; }
+.dn__dot.is-active .dn__dot-label { opacity: 1; color: rgba(255,232,200,0.95); }
+.dn__count {
+  flex: 0 0 auto; font-variant-numeric: tabular-nums; font-size: 10px;
+  letter-spacing: 0.18em; color: rgba(255,232,200,0.55);
+}
+
+/* 01 ME */
+.me {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at 30% 0%, rgba(220,200,170,0.35), transparent 60%), #efe9dd;
+  color: #1a1612; display: grid; grid-template-rows: auto 1fr auto;
+  font-family: var(--body, 'Cambria','Georgia',serif); position: relative;
+}
+.me::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(135deg, transparent 0 12px, rgba(120,90,60,0.025) 12px 13px);
+  pointer-events: none;
+}
+.me__hdr, .me__foot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: clamp(14px, 2.2cqi, 26px) clamp(20px, 4cqi, 56px);
+  font-family: 'SF Mono','Menlo','Consolas',monospace;
+  font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #6b5742;
+}
+.me__foot { gap: 16px; }
+.me__rule { flex: 1; height: 1px; background: #6b5742; opacity: 0.4; }
+.me__inner {
+  align-self: center; justify-self: center;
+  padding: 0 clamp(24px, 5cqi, 80px); max-width: 86%; text-align: center;
+}
+.me__kicker {
+  margin: 0 0 clamp(10px, 1.6cqi, 22px);
+  font-family: 'SF Mono','Menlo',monospace;
+  font-size: clamp(9.5px, 1.1cqi, 12px); letter-spacing: 0.32em; text-transform: uppercase; color: #806542;
+}
+.me__title {
+  margin: 0; font-size: clamp(48px, 11cqi, 160px); font-weight: 700;
+  letter-spacing: -0.05em; line-height: 0.95; color: #1a1612;
+}
+.me__pron {
+  margin: clamp(8px, 1.2cqi, 14px) 0 clamp(20px, 3cqi, 36px);
+  font-style: italic; font-size: clamp(12px, 1.6cqi, 18px); color: #6b5742;
+}
+.me__defn {
+  margin: 0 auto; max-width: 28em; font-size: clamp(14px, 2cqi, 22px);
+  line-height: 1.45; color: #2c2419; letter-spacing: -0.005em;
+}
+.me__sig {
+  margin: clamp(14px, 2.2cqi, 26px) 0 0; font-style: italic;
+  font-size: clamp(11px, 1.4cqi, 15px); color: #806542;
+}
+.me__meta {
+  margin: clamp(22px, 4cqi, 52px) auto 0; display: inline-flex; flex-direction: column; gap: 4px;
+  font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px);
+  letter-spacing: 0.16em; text-transform: uppercase; color: #6b5742;
+  border-top: 1px solid rgba(107,87,66,0.3); padding-top: clamp(10px, 1.5cqi, 16px);
+}
+.me__meta-row { display: flex; gap: 20px; justify-content: space-between; min-width: 220px; }
+.me__meta-row b { color: #1a1612; font-weight: 600; }
+
+/* 02 VERISSIMUS */
+.vr {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(40,80,60,0.22), transparent 50%),
+    linear-gradient(180deg, #0a0d0a 0%, #050706 100%);
+  color: #d8e6dc; display: grid; grid-template-rows: auto auto 1fr auto;
+  padding: clamp(14px, 2.4cqi, 28px) clamp(20px, 3.4cqi, 44px);
+  gap: clamp(10px, 1.8cqi, 22px);
+  font-family: 'SF Mono','Menlo','Consolas',monospace; position: relative; overflow: hidden;
+}
+.vr::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(180deg, transparent 0 3px, rgba(80,160,120,0.025) 3px 4px);
+  pointer-events: none; mix-blend-mode: screen;
+}
+.vr__hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(120,180,140,0.18); padding-bottom: clamp(8px, 1.4cqi, 16px);
+}
+.vr__brand { display: flex; align-items: baseline; gap: clamp(8px, 1.4cqi, 14px); }
+.vr__brand-mark { font-size: clamp(14px, 2cqi, 22px); color: oklch(0.78 0.14 145); }
+.vr__brand-name { font-size: clamp(15px, 2.2cqi, 24px); letter-spacing: 0.28em; font-weight: 700; color: #f0fce8; }
+.vr__brand-sub { font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.32em; color: rgba(180,210,190,0.55); }
+.vr__ticker { display: inline-flex; align-items: center; gap: 8px; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.24em; color: rgba(180,210,190,0.7); }
+.vr__ticker-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: oklch(0.78 0.18 145);
+  box-shadow: 0 0 8px oklch(0.78 0.18 145); animation: recBlink 1.8s ease-in-out infinite;
+}
+.vr__lede { display: grid; grid-template-columns: 0.9fr 1fr 1.4fr; gap: clamp(16px, 3cqi, 36px); align-items: center; }
+.vr__stat { display: flex; flex-direction: column; border-right: 1px solid rgba(120,180,140,0.18); padding-right: clamp(12px, 2cqi, 24px); }
+.vr__stat-num { font-size: clamp(54px, 11cqi, 140px); font-weight: 700; letter-spacing: -0.06em; line-height: 0.9; color: oklch(0.85 0.18 145); font-variant-numeric: tabular-nums; }
+.vr__stat-pct { font-size: 0.55em; opacity: 0.7; }
+.vr__stat-cap { margin-top: 6px; font-size: clamp(9px, 1.05cqi, 12px); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(180,210,190,0.65); }
+.vr__split { display: flex; flex-direction: column; gap: clamp(6px, 1cqi, 10px); }
+.vr__split-row { display: grid; grid-template-columns: 70px 1fr 80px; gap: clamp(8px, 1.4cqi, 14px); align-items: center; font-size: clamp(11px, 1.4cqi, 15px); }
+.vr__split-row--mini { font-size: clamp(9.5px, 1.1cqi, 12px); opacity: 0.7; }
+.vr__split-label { color: rgba(180,210,190,0.7); letter-spacing: 0.12em; font-size: clamp(9px, 1cqi, 11px); text-transform: uppercase; }
+.vr__split-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 1px; overflow: hidden; position: relative; }
+.vr__split-bar span { display: block; height: 100%; background: oklch(0.78 0.16 145); animation: fillBar 1s cubic-bezier(.2,.7,.2,1) both 0.2s; transform-origin: left; }
+@keyframes fillBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.vr__split-val { color: #f0fce8; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.vr__bio { font-family: 'Cambria','Georgia',serif; font-size: clamp(11px, 1.5cqi, 16px); line-height: 1.5; color: rgba(220,235,225,0.85); letter-spacing: -0.01em; padding-left: clamp(12px, 2cqi, 24px); border-left: 1px solid rgba(120,180,140,0.18); }
+.vr__bio p { margin: 0; }
+.vr__bio b { color: oklch(0.86 0.14 145); font-weight: 600; font-style: italic; }
+.vr__ledger { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: clamp(12px, 2cqi, 26px); min-height: 0; overflow: hidden; }
+.vr__lcol--wide { grid-column: span 2; }
+.vr__lcol--wide .vr__lcol-rows { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(6, auto); grid-auto-flow: column; column-gap: clamp(10px, 1.8cqi, 22px); align-content: start; }
+.vr__lcol { display: flex; flex-direction: column; min-height: 0; }
+.vr__lcol-h { font-size: clamp(9px, 1.05cqi, 11.5px); letter-spacing: 0.28em; text-transform: uppercase; color: oklch(0.86 0.14 145); padding-bottom: clamp(6px, 1cqi, 10px); border-bottom: 1px solid rgba(120,180,140,0.28); }
+.vr__lcol-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.vr__lcol-row { display: grid; grid-template-columns: 1fr auto 14px; gap: clamp(6px, 1cqi, 12px); align-items: baseline; padding: clamp(3px, 0.7cqi, 6px) 0; border-bottom: 1px dotted rgba(120,180,140,0.12); font-size: clamp(10px, 1.25cqi, 13.5px); animation: slideUpVr 0.4s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes slideUpVr { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.vr__lcol-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e6f3e6; font-weight: 500; letter-spacing: -0.005em; }
+.vr__lcol-mult { font-variant-numeric: tabular-nums; color: oklch(0.86 0.14 145); font-weight: 700; letter-spacing: -0.02em; }
+.vr__lcol-stat { font-size: 9px; text-align: center; color: oklch(0.86 0.14 145); }
+.vr__lcol-row--holding .vr__lcol-stat { color: rgba(180,210,190,0.5); }
+.vr__foot { display: flex; justify-content: space-between; font-size: clamp(8.5px, 1cqi, 10.5px); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(180,210,190,0.5); border-top: 1px solid rgba(120,180,140,0.18); padding-top: clamp(6px, 1cqi, 12px); }
+
+/* 03 DYEUS */
+.dy {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(120,90,180,0.18), transparent 55%),
+    radial-gradient(ellipse at 50% 0%, rgba(40,60,120,0.25), transparent 55%),
+    #050810;
+  color: #f0eee6; display: grid; grid-template-rows: auto 1fr auto auto;
+  padding: clamp(14px, 2.4cqi, 30px) clamp(24px, 5cqi, 70px);
+  gap: clamp(14px, 2.4cqi, 32px);
+  font-family: var(--body, 'Cambria','Georgia',serif); position: relative; overflow: hidden;
+}
+.dy__stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 22% 18%, rgba(255,255,255,0.7), transparent 50%),
+    radial-gradient(1px 1px at 67% 32%, rgba(255,255,255,0.6), transparent 50%),
+    radial-gradient(1.5px 1.5px at 14% 72%, rgba(255,255,255,0.9), transparent 50%),
+    radial-gradient(1px 1px at 84% 81%, rgba(255,255,255,0.6), transparent 50%),
+    radial-gradient(0.8px 0.8px at 41% 49%, rgba(255,255,255,0.5), transparent 50%),
+    radial-gradient(1px 1px at 92% 12%, rgba(255,255,255,0.7), transparent 50%),
+    radial-gradient(1.5px 1.5px at 33% 86%, rgba(255,255,255,0.85), transparent 50%),
+    radial-gradient(0.8px 0.8px at 58% 67%, rgba(255,255,255,0.6), transparent 50%),
+    radial-gradient(1px 1px at 72% 9%, rgba(255,255,255,0.5), transparent 50%),
+    radial-gradient(1px 1px at 8% 39%, rgba(255,255,255,0.6), transparent 50%);
+  opacity: 0.7;
+}
+.dy__hdr { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: clamp(9px, 1.05cqi, 11.5px); letter-spacing: 0.28em; text-transform: uppercase; color: rgba(240,238,230,0.5); position: relative; z-index: 1; }
+.dy__hero { text-align: center; margin: auto 0; position: relative; z-index: 1; }
+.dy__name { margin: 0; font-size: clamp(56px, 13cqi, 200px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.95; color: #fff8e6; font-style: italic; }
+.dy__pron { margin: clamp(12px, 1.8cqi, 22px) 0 0; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(10px, 1.3cqi, 14px); font-style: normal; letter-spacing: 0.24em; color: rgba(240,238,230,0.55); text-transform: uppercase; }
+.dy__body { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 4cqi, 56px); align-items: center; position: relative; z-index: 1; }
+.dy__lead { margin: 0; font-size: clamp(15px, 2.4cqi, 28px); line-height: 1.35; letter-spacing: -0.015em; color: rgba(240,238,230,0.9); font-style: italic; }
+.dy__col--cognates { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 1.6cqi, 18px); }
+.dy__cognate { display: flex; flex-direction: column; gap: 2px; border-left: 1px solid rgba(240,238,230,0.18); padding-left: clamp(8px, 1.4cqi, 14px); }
+.dy__lang { font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.2em; text-transform: uppercase; color: rgba(240,238,230,0.5); }
+.dy__cognate b { font-size: clamp(18px, 3.2cqi, 38px); font-weight: 600; letter-spacing: -0.02em; color: #fff8e6; }
+.dy__quote { margin: 0; font-size: clamp(14px, 2.2cqi, 24px); line-height: 1.35; letter-spacing: -0.01em; color: rgba(240,238,230,0.85); font-style: italic; position: relative; z-index: 1; padding-left: clamp(28px, 4cqi, 56px); }
+.dy__qmark { position: absolute; left: 0; top: -0.4em; font-size: 3em; color: rgba(240,238,230,0.3); font-family: 'Cambria','Georgia',serif; line-height: 1; }
+.dy__quote cite { display: block; margin-top: clamp(8px, 1.2cqi, 14px); font-style: normal; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1.05cqi, 11.5px); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(240,238,230,0.5); }
+.dy__foot { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(240,238,230,0.45); border-top: 1px solid rgba(240,238,230,0.15); padding-top: clamp(8px, 1.2cqi, 14px); position: relative; z-index: 1; }
+
+/* 04 WORLDVIEW */
+.wv {
+  width: 100%; height: 100%; background: #efe9dd; color: #1a1612;
+  display: grid; grid-template-rows: auto 1fr auto;
+  padding: clamp(14px, 2.4cqi, 28px) clamp(22px, 4cqi, 56px);
+  gap: clamp(12px, 2cqi, 24px);
+  font-family: var(--body, 'Cambria','Georgia',serif); position: relative;
+}
+.wv::before { content: ""; position: absolute; inset: 0; background-image: repeating-linear-gradient(135deg, transparent 0 12px, rgba(120,90,60,0.025) 12px 13px); pointer-events: none; }
+.wv__masthead { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #1a1612; padding-bottom: clamp(8px, 1.2cqi, 14px); position: relative; z-index: 1; }
+.wv__masthead-l { display: flex; align-items: center; gap: clamp(10px, 1.8cqi, 22px); }
+.wv__name { font-size: clamp(28px, 6.4cqi, 80px); font-weight: 700; letter-spacing: -0.045em; line-height: 1; color: #1a1612; }
+.wv__rule { width: 1px; height: clamp(20px, 3cqi, 36px); background: #6b5742; opacity: 0.4; }
+.wv__tag { font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.16em; text-transform: uppercase; color: #6b5742; max-width: 18em; line-height: 1.4; }
+.wv__masthead-r { display: flex; gap: 8px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.18em; text-transform: uppercase; color: #6b5742; }
+.wv__essays { display: flex; flex-direction: column; gap: clamp(8px, 1.4cqi, 14px); min-height: 0; }
+.wv__essays-h { display: flex; justify-content: space-between; align-items: baseline; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #806542; }
+.wv__essays-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: clamp(8px, 1.4cqi, 16px); min-height: 0; flex: 1; }
+.wv__post { display: flex; flex-direction: column; padding: clamp(10px, 1.6cqi, 18px); background: #f7f2e7; border: 1px solid rgba(107,87,66,0.18); text-decoration: none; color: inherit; position: relative; transition: transform 0.2s, box-shadow 0.2s; overflow: hidden; min-height: 0; gap: clamp(4px, 0.8cqi, 8px); }
+.wv__post:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -10px rgba(60,40,20,0.3); }
+.wv__post-no { font-family: 'Cambria','Georgia',serif; font-size: clamp(11px, 1.4cqi, 14px); letter-spacing: 0.18em; color: #b9572d; font-style: normal; font-weight: 700; text-transform: uppercase; position: static; }
+.wv__post-title { margin: 0; font-size: clamp(14px, 2.2cqi, 24px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: #1a1612; font-family: var(--body, 'Cambria','Georgia',serif); }
+.wv__post-dek { margin: 0; font-size: clamp(10px, 1.3cqi, 13px); line-height: 1.35; color: #4d3f2e; font-style: italic; letter-spacing: -0.005em; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.wv__post-cta { margin-top: auto; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #b9572d; font-style: normal; }
+.wv__tweets { display: flex; flex-direction: column; gap: clamp(6px, 1cqi, 10px); border-top: 1px dashed rgba(107,87,66,0.3); padding-top: clamp(8px, 1.2cqi, 14px); }
+.wv__tweets-h { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.18em; text-transform: uppercase; color: #806542; }
+.wv__tweets-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(6px, 1cqi, 10px); }
+.wv__tweet { background: #f7f2e7; border: 1px dashed rgba(107,87,66,0.3); padding: clamp(6px, 1cqi, 10px) clamp(8px, 1.4cqi, 14px); font-family: 'Helvetica Neue',Helvetica,sans-serif; font-size: clamp(9px, 1.1cqi, 11px); display: flex; align-items: center; gap: 8px; min-height: 0; }
+.wv__tweet-head { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; }
+.wv__tweet-avatar { width: 18px; height: 18px; border-radius: 50%; background: #b9572d; opacity: 0.5; }
+.wv__tweet-hand { display: none; }
+.wv__tweet-text { margin: 0; color: #4d3f2e; font-style: italic; line-height: 1.2; flex: 1; font-size: clamp(9px, 1.1cqi, 11px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wv__tweet-foot { display: none; }
+
+/* 05 MUSIC */
+.mu {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(200,40,60,0.10), transparent 50%), #0a0a0c;
+  color: #f0eee6; display: grid; grid-template-rows: auto 1fr;
+  padding: clamp(14px, 2.4cqi, 28px) clamp(22px, 4cqi, 50px);
+  gap: clamp(12px, 2cqi, 22px);
+  font-family: var(--body, 'Cambria','Georgia',serif);
+}
+.mu__hdr { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid rgba(240,238,230,0.18); padding-bottom: clamp(8px, 1.2cqi, 14px); }
+.mu__name { font-size: clamp(28px, 6.4cqi, 80px); font-weight: 700; letter-spacing: -0.045em; line-height: 1; color: #fff8e6; }
+.mu__tag { margin-top: 4px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.16em; text-transform: uppercase; color: rgba(240,238,230,0.5); }
+.mu__nowplay { display: inline-flex; align-items: center; gap: 10px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(240,238,230,0.7); }
+.mu__bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+.mu__bars i { display: inline-block; width: 2.5px; background: oklch(0.78 0.16 30); border-radius: 1px; animation: bars 0.9s ease-in-out infinite; }
+.mu__bars i:nth-child(1) { height: 30%; animation-delay: 0s; }
+.mu__bars i:nth-child(2) { height: 60%; animation-delay: 0.15s; }
+.mu__bars i:nth-child(3) { height: 90%; animation-delay: 0.3s; }
+.mu__bars i:nth-child(4) { height: 50%; animation-delay: 0.45s; }
+@keyframes bars { 0%, 100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+.mu__grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: clamp(10px, 1.8cqi, 20px); min-height: 0; }
+.mu__cell { display: flex; flex-direction: column; background: rgba(255,255,255,0.03); border: 1px solid rgba(240,238,230,0.08); border-radius: 6px; overflow: hidden; min-height: 0; }
+.mu__cell-h { display: flex; align-items: baseline; gap: 14px; padding: clamp(10px, 1.6cqi, 16px) clamp(12px, 2cqi, 18px) clamp(6px, 1cqi, 10px); border-bottom: 1px solid rgba(240,238,230,0.08); }
+.mu__cell-n { font-family: 'SF Mono','Menlo',monospace; font-size: clamp(11px, 1.5cqi, 16px); letter-spacing: 0.18em; color: oklch(0.78 0.16 30); font-weight: 700; }
+.mu__cell-sub { font-style: italic; font-size: clamp(11px, 1.5cqi, 16px); color: rgba(240,238,230,0.7); letter-spacing: -0.01em; }
+.mu__cell-frame { flex: 1; min-height: 0; background: #121212; overflow: hidden; }
+.mu__cell-frame iframe { width: 100%; height: 100%; display: block; border: 0; }
+
+/* 06 MOODBOARD */
+.mb {
+  width: 100%; height: 100%; background: #0d0c0a; color: #f0eee6;
+  display: grid; grid-template-rows: auto 1fr; padding: 0;
+  font-family: var(--body, 'Cambria','Georgia',serif); position: relative;
+}
+.mb__hdr { display: flex; justify-content: space-between; align-items: baseline; padding: clamp(12px, 2cqi, 22px) clamp(18px, 3cqi, 36px); border-bottom: 1px solid rgba(240,238,230,0.08); background: rgba(13,12,10,0.85); backdrop-filter: blur(8px); position: relative; z-index: 2; }
+.mb__title { display: flex; align-items: baseline; gap: 10px; font-size: clamp(15px, 2.4cqi, 26px); font-weight: 700; letter-spacing: -0.025em; color: #fff8e6; }
+.mb__title em { font-size: 0.55em; font-weight: 400; letter-spacing: 0.02em; color: rgba(240,238,230,0.55); font-family: 'Cambria','Georgia',serif; }
+.mb__sep { color: rgba(240,238,230,0.35); }
+.mb__beats { display: flex; gap: 10px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(240,238,230,0.5); }
+.mb__scroll { overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; position: relative; }
+.mb__scroll::-webkit-scrollbar { width: 6px; }
+.mb__scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
+.mb__wall { column-count: 4; column-gap: clamp(4px, 0.7cqi, 8px); padding: clamp(8px, 1.2cqi, 14px); }
+.mb__cell { margin: 0 0 clamp(4px, 0.7cqi, 8px); break-inside: avoid; position: relative; overflow: hidden; border-radius: 2px; background: rgba(255,255,255,0.02); animation: mbCellIn 0.5s cubic-bezier(.2,.7,.2,1) both; cursor: zoom-in; }
+@keyframes mbCellIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.mb__cell img { width: 100%; display: block; transition: transform 0.4s; }
+.mb__cell:hover img { transform: scale(1.02); }
+.mb__cell figcaption { position: absolute; inset: auto 0 0 0; padding: 24px 10px 8px; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85)); color: rgba(255,255,255,0.95); font-size: clamp(9px, 1.05cqi, 12px); font-style: italic; font-family: 'Cambria','Georgia',serif; letter-spacing: 0.01em; opacity: 0; transition: opacity 0.2s; }
+.mb__cell:hover figcaption { opacity: 1; }
+.mb__end { text-align: center; padding: 24px 0 36px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(240,238,230,0.4); }
+
+/* HUD */
+.hud { position: fixed; inset: 0; z-index: 5; pointer-events: none; font-family: 'SF Mono','Menlo','Consolas',monospace; color: rgba(255,232,200,0.55); transition: opacity 0.3s; }
+body.hud-off .hud { opacity: 0; }
+.hud__corner { position: absolute; width: 22px; height: 22px; }
+.hud__corner::before, .hud__corner::after { content: ""; position: absolute; background: rgba(255,230,200,0.5); }
+.hud__corner::before { left: 0; top: 0; width: 22px; height: 1.5px; }
+.hud__corner::after  { left: 0; top: 0; width: 1.5px; height: 22px; }
+.hud__corner--tl { top: 20px; left: 20px; }
+.hud__corner--tr { top: 20px; right: 20px; transform: scaleX(-1); }
+.hud__corner--bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+.hud__corner--br { bottom: 20px; right: 20px; transform: scale(-1, -1); }
+.hud__rec { position: absolute; top: 22px; left: 56px; display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+.hud__rec-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: oklch(0.66 0.18 27); box-shadow: 0 0 8px oklch(0.66 0.18 27); animation: recBlink 1.6s ease-in-out infinite; }
+.hud__rec-label { color: rgba(255,232,200,0.65); font-weight: 600; }
+.hud__rec-time { color: rgba(255,232,200,0.85); font-variant-numeric: tabular-nums; }
+@keyframes recBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.hud__stamp { position: absolute; bottom: 22px; right: 56px; display: inline-flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: 0.24em; font-weight: 600; color: rgba(255,232,200,0.55); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+.hud__stamp-sep { opacity: 0.5; }
+.hud__crosshair { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; transform: translate(-50%, -50%); opacity: 0.16; }
+.hud__crosshair-h, .hud__crosshair-v { position: absolute; background: rgba(255,230,200,0.6); }
+.hud__crosshair-h { left: 0; top: 50%; width: 100%; height: 1px; transform: translateY(-0.5px); }
+.hud__crosshair-v { top: 0; left: 50%; width: 1px; height: 100%; transform: translateX(-0.5px); }
+.hud::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 3px, rgba(255,255,255,0.012) 3px, rgba(255,255,255,0.012) 4px); mix-blend-mode: overlay; pointer-events: none; }
+@media (max-width: 720px) {
+  .hud__rec { left: 50px; font-size: 9px; }
+  .hud__stamp { right: 50px; font-size: 9px; gap: 6px; }
+  .hud__corner { width: 16px; height: 16px; }
+  .hud__corner::before { width: 16px; }
+  .hud__corner::after { height: 16px; }
+}
+  </style>
+</head>
+<body>
+  <div class="backdrop">
+    <image-slot id="desk-photo" shape="rect" placeholder="drop a desk photo"></image-slot>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <div class="stage-room">
+    <div class="laptop">
+      <div class="laptop__screen">
+        <div class="laptop__camera"></div>
+        <div class="laptop__screen-inner">
+          <div id="root"></div>
+        </div>
+        <div class="laptop__notch"></div>
+      </div>
+      <div class="laptop__glare"></div>
+      <div class="laptop__base"></div>
+      <div class="laptop__lip"></div>
+    </div>
+  </div>
+
+  <div class="hud" aria-hidden="true">
+    <div class="hud__corner hud__corner--tl"></div>
+    <div class="hud__corner hud__corner--tr"></div>
+    <div class="hud__corner hud__corner--bl"></div>
+    <div class="hud__corner hud__corner--br"></div>
+    <div class="hud__rec">
+      <span class="hud__rec-dot"></span>
+      <span class="hud__rec-label">OBSERVING</span>
+      <span class="hud__rec-time" id="hud-time">23:47:11</span>
+    </div>
+    <div class="hud__stamp">
+      <span>AUTOCOSM.XYZ</span>
+      <span class="hud__stamp-sep">·</span>
+      <span>CAM 04 / LIVE</span>
+    </div>
+    <div class="hud__crosshair">
+      <span class="hud__crosshair-h"></span>
+      <span class="hud__crosshair-v"></span>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var t = document.getElementById('hud-time');
+      if (!t) return;
+      function tick() {
+        var d = new Date();
+        var p = function (n) { return String(n).padStart(2, '0'); };
+        t.textContent = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+      }
+      tick(); setInterval(tick, 1000);
+    })();
+  </script>
+
+  <script>
+  (() => {
+    const STATE_FILE = '.image-slots.state.json';
+    const MAX_DIM = 1200;
+    const ACCEPT = ['image/png', 'image/jpeg', 'image/webp', 'image/avif'];
+    const subs = new Set();
+    let slots = {};
+    const tombstones = new Set();
+    let loaded = false;
+    let loadP = null;
+    function load() {
+      if (loadP) return loadP;
+      loadP = fetch(STATE_FILE)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => {
+          if (j && typeof j === 'object') {
+            const merged = Object.assign({}, j, slots);
+            for (const k in slots) {
+              if (merged[k] && !merged[k].u && j[k]) {
+                merged[k].u = typeof j[k] === 'string' ? j[k] : j[k].u;
+              }
+            }
+            for (const id of tombstones) delete merged[id];
+            slots = merged;
+          }
+          tombstones.clear();
+        })
+        .catch(() => {})
+        .then(() => { loaded = true; subs.forEach((fn) => fn()); });
+      return loadP;
+    }
+    let saving = false;
+    let saveDirty = false;
+    function save() {
+      if (saving) { saveDirty = true; return; }
+      const w = window.omelette && window.omelette.writeFile;
+      if (!w) return;
+      saving = true;
+      Promise.resolve(w(STATE_FILE, JSON.stringify(slots)))
+        .catch(() => {})
+        .then(() => { saving = false; if (saveDirty) { saveDirty = false; save(); } });
+    }
+    const S_MAX = 5;
+    const clampS = (s) => Math.max(1, Math.min(S_MAX, s));
+    function getSlot(id) {
+      const v = slots[id];
+      if (!v) return null;
+      return typeof v === 'string' ? { u: v, s: 1, x: 0, y: 0 } : v;
+    }
+    function setSlot(id, val) {
+      if (!id) return;
+      if (val) { slots[id] = val; tombstones.delete(id); }
+      else { delete slots[id]; if (!loaded) tombstones.add(id); }
+      subs.forEach((fn) => fn());
+      if (loaded) save(); else load().then(save);
+    }
+    async function toDataUrl(file, targetW) {
+      const bitmap = await createImageBitmap(file);
+      try {
+        const cap = Math.min(MAX_DIM, Math.max(1, Math.round(targetW * 2)) || MAX_DIM);
+        const scale = Math.min(1, cap / Math.max(bitmap.width, bitmap.height));
+        const w = Math.max(1, Math.round(bitmap.width * scale));
+        const h = Math.max(1, Math.round(bitmap.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+        return canvas.toDataURL('image/webp', 0.85);
+      } finally { bitmap.close && bitmap.close(); }
+    }
+    const stylesheet =
+      ':host{display:inline-block;position:relative;vertical-align:top;font:13px/1.3 system-ui,-apple-system,sans-serif;color:rgba(0,0,0,.55);width:240px;height:160px}' +
+      '.frame{position:absolute;inset:0;overflow:hidden;background:rgba(0,0,0,.04)}' +
+      '.frame img{position:absolute;max-width:none;transform:translate(-50%,-50%);-webkit-user-drag:none;user-select:none;touch-action:none}' +
+      '.spill{position:absolute;transform:translate(-50%,-50%);display:none;z-index:1;cursor:grab;touch-action:none}' +
+      ':host([data-panning]) .spill{cursor:grabbing}' +
+      '.spill .ghost{position:absolute;inset:0;width:100%;height:100%;opacity:.35;pointer-events:none;-webkit-user-drag:none;user-select:none;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 12px 32px rgba(0,0,0,.2)}' +
+      '.spill .handle{position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px #c96442,0 1px 3px rgba(0,0,0,.3);transform:translate(-50%,-50%)}' +
+      '.spill .handle[data-c=nw]{left:0;top:0;cursor:nwse-resize}' +
+      '.spill .handle[data-c=ne]{left:100%;top:0;cursor:nesw-resize}' +
+      '.spill .handle[data-c=sw]{left:0;top:100%;cursor:nesw-resize}' +
+      '.spill .handle[data-c=se]{left:100%;top:100%;cursor:nwse-resize}' +
+      ':host([data-reframe]){z-index:10}' +
+      ':host([data-reframe]) .spill{display:block}' +
+      ':host([data-reframe]) .frame{box-shadow:0 0 0 2px #c96442}' +
+      '.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:12px;box-sizing:border-box;cursor:pointer;user-select:none}' +
+      '.empty svg{opacity:.45}' +
+      '.empty .cap{max-width:90%;font-weight:500;letter-spacing:.01em}' +
+      '.empty .sub{font-size:11px}' +
+      '.empty .sub u{text-underline-offset:2px;text-decoration-color:rgba(0,0,0,.25)}' +
+      '.empty:hover .sub u{color:rgba(0,0,0,.75);text-decoration-color:currentColor}' +
+      ':host([data-over]) .frame{outline:2px solid #c96442;outline-offset:-2px;background:rgba(201,100,66,.10)}' +
+      '.ring{position:absolute;inset:0;pointer-events:none;border:1.5px dashed rgba(0,0,0,.25);transition:border-color .12s}' +
+      ':host([data-over]) .ring{border-color:#c96442}' +
+      ':host([data-filled]) .ring{display:none}' +
+      '.ctl{position:absolute;top:100%;left:50%;transform:translateX(-50%);padding-top:8px;display:flex;gap:6px;opacity:0;pointer-events:none;transition:opacity .12s;z-index:2;white-space:nowrap}' +
+      ':host([data-filled][data-editable]:hover) .ctl,:host([data-reframe]) .ctl{opacity:1;pointer-events:auto}' +
+      '.ctl button{appearance:none;border:0;border-radius:6px;padding:5px 10px;cursor:pointer;background:rgba(0,0,0,.65);color:#fff;font:11px/1 system-ui,-apple-system,sans-serif;backdrop-filter:blur(6px)}' +
+      '.ctl button:hover{background:rgba(0,0,0,.8)}' +
+      '.err{position:absolute;left:8px;bottom:8px;right:8px;color:#b3261e;font-size:11px;background:rgba(255,255,255,.85);padding:4px 6px;border-radius:5px;pointer-events:none}';
+    const icon = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>';
+    class ImageSlot extends HTMLElement {
+      static get observedAttributes() { return ['shape','radius','mask','fit','position','placeholder','src','id']; }
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        root.innerHTML = '<style>' + stylesheet + '</style>' +
+          '<div class="frame" part="frame"><img part="image" alt="" draggable="false" style="display:none">' +
+          '<div class="empty" part="empty">' + icon + '<div class="cap"></div><div class="sub">or <u>browse files</u></div></div>' +
+          '<div class="ring" part="ring"></div></div>' +
+          '<div class="spill"><img class="ghost" alt="" draggable="false">' +
+          '<div class="handle" data-c="nw"></div><div class="handle" data-c="ne"></div>' +
+          '<div class="handle" data-c="sw"></div><div class="handle" data-c="se"></div></div>' +
+          '<div class="ctl"><button data-act="replace">Replace</button><button data-act="clear">Remove</button></div>' +
+          '<input type="file" accept="' + ACCEPT.join(',') + '" hidden>';
+        this._frame = root.querySelector('.frame');
+        this._ring = root.querySelector('.ring');
+        this._img = root.querySelector('.frame img');
+        this._empty = root.querySelector('.empty');
+        this._cap = root.querySelector('.cap');
+        this._sub = root.querySelector('.sub');
+        this._spill = root.querySelector('.spill');
+        this._ghost = root.querySelector('.ghost');
+        this._err = null;
+        this._input = root.querySelector('input');
+        this._depth = 0; this._gen = 0;
+        this._view = { s: 1, x: 0, y: 0 };
+        this._subFn = () => this._render();
+        this._empty.addEventListener('click', () => this._input.click());
+        root.addEventListener('click', (e) => {
+          const act = e.target && e.target.getAttribute && e.target.getAttribute('data-act');
+          if (act === 'replace') { this._exitReframe(true); this._input.click(); }
+          if (act === 'clear') { this._exitReframe(false); this._gen++; this._local = null; if (this.id) setSlot(this.id, null); else this._render(); }
+        });
+        this._input.addEventListener('change', () => { const f = this._input.files && this._input.files[0]; if (f) this._ingest(f); this._input.value = ''; });
+        this._img.addEventListener('load', () => this._applyView());
+        this.addEventListener('dblclick', (e) => { if (!this.hasAttribute('data-editable') || !this._reframes()) return; e.preventDefault(); if (this.hasAttribute('data-reframe')) this._exitReframe(true); else this._enterReframe(); });
+        this._spill.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0 || !this.hasAttribute('data-reframe')) return;
+          e.preventDefault(); e.stopPropagation();
+          this._spill.setPointerCapture(e.pointerId);
+          const rect = this.getBoundingClientRect();
+          const fw = rect.width || 1, fh = rect.height || 1;
+          const corner = e.target.getAttribute && e.target.getAttribute('data-c');
+          let move;
+          if (corner) {
+            const iw = this._img.naturalWidth || 1, ih = this._img.naturalHeight || 1;
+            const base = Math.max(fw / iw, fh / ih);
+            const sx = corner.includes('e') ? 1 : -1, sy = corner.includes('s') ? 1 : -1;
+            const s0 = this._view.s;
+            const w0 = iw * base * s0, h0 = ih * base * s0;
+            const cx0 = (50 + this._view.x) / 100 * fw, cy0 = (50 + this._view.y) / 100 * fh;
+            const ox = cx0 - sx * w0 / 2, oy = cy0 - sy * h0 / 2;
+            const diag0 = Math.hypot(w0, h0);
+            const ux = sx * w0 / diag0, uy = sy * h0 / diag0;
+            move = (ev) => {
+              const proj = (ev.clientX - rect.left - ox) * ux + (ev.clientY - rect.top - oy) * uy;
+              const s = clampS(s0 * proj / diag0);
+              const d = diag0 * s / s0;
+              this._view.s = s; this._view.x = (ox + ux * d / 2) / fw * 100 - 50; this._view.y = (oy + uy * d / 2) / fh * 100 - 50;
+              this._clampView(); this._applyView();
+            };
+          } else {
+            this.setAttribute('data-panning', '');
+            const start = { px: e.clientX, py: e.clientY, x: this._view.x, y: this._view.y };
+            move = (ev) => { this._view.x = start.x + (ev.clientX - start.px) / fw * 100; this._view.y = start.y + (ev.clientY - start.py) / fh * 100; this._clampView(); this._applyView(); };
+          }
+          const up = () => { try { this._spill.releasePointerCapture(e.pointerId); } catch {} this._spill.removeEventListener('pointermove', move); this._spill.removeEventListener('pointerup', up); this._spill.removeEventListener('pointercancel', up); this.removeAttribute('data-panning'); this._dragUp = null; };
+          this._dragUp = up;
+          this._spill.addEventListener('pointermove', move); this._spill.addEventListener('pointerup', up); this._spill.addEventListener('pointercancel', up);
+        });
+        this.addEventListener('wheel', (e) => {
+          if (!this.hasAttribute('data-reframe')) return; e.preventDefault();
+          const r = this.getBoundingClientRect();
+          const cx = (e.clientX - r.left) / r.width * 100 - 50, cy = (e.clientY - r.top) / r.height * 100 - 50;
+          const prev = this._view.s, next = clampS(prev * Math.pow(1.0015, -e.deltaY));
+          if (next === prev) return;
+          const k = next / prev; this._view.s = next; this._view.x = cx * (1 - k) + this._view.x * k; this._view.y = cy * (1 - k) + this._view.y * k;
+          this._clampView(); this._applyView();
+        }, { passive: false });
+      }
+      connectedCallback() {
+        this.addEventListener('dragenter', this); this.addEventListener('dragover', this);
+        this.addEventListener('dragleave', this); this.addEventListener('drop', this);
+        subs.add(this._subFn);
+        this._ro = new ResizeObserver(() => this._render()); this._ro.observe(this);
+        load(); this._render();
+      }
+      disconnectedCallback() {
+        subs.delete(this._subFn);
+        this.removeEventListener('dragenter', this); this.removeEventListener('dragover', this);
+        this.removeEventListener('dragleave', this); this.removeEventListener('drop', this);
+        if (this._ro) { this._ro.disconnect(); this._ro = null; }
+        this._exitReframe(false);
+      }
+      _enterReframe() {
+        if (this.hasAttribute('data-reframe')) return;
+        this.setAttribute('data-reframe', ''); this._applyView();
+        this._outside = (e) => { if (e.composedPath && e.composedPath().includes(this)) return; this._exitReframe(true); };
+        this._esc = (e) => { if (e.key === 'Escape') this._exitReframe(true); };
+        document.addEventListener('pointerdown', this._outside, true); document.addEventListener('keydown', this._esc, true);
+      }
+      _exitReframe(commit) {
+        if (!this.hasAttribute('data-reframe')) return;
+        if (this._dragUp) this._dragUp();
+        this.removeAttribute('data-reframe'); this.removeAttribute('data-panning');
+        if (this._outside) document.removeEventListener('pointerdown', this._outside, true);
+        if (this._esc) document.removeEventListener('keydown', this._esc, true);
+        this._outside = this._esc = null;
+        if (commit) this._commitView();
+      }
+      attributeChangedCallback() { if (this.shadowRoot) this._render(); }
+      handleEvent(e) {
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+          e.preventDefault(); e.stopPropagation();
+          if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+          if (e.type === 'dragenter') this._depth++;
+          this.setAttribute('data-over', '');
+        } else if (e.type === 'dragleave') {
+          if (--this._depth <= 0) { this._depth = 0; this.removeAttribute('data-over'); }
+        } else if (e.type === 'drop') {
+          e.preventDefault(); e.stopPropagation(); this._depth = 0; this.removeAttribute('data-over');
+          const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) this._ingest(f);
+        }
+      }
+      async _ingest(file) {
+        this._setError(null);
+        if (!file || ACCEPT.indexOf(file.type) < 0) { this._setError('Drop a PNG, JPEG, WebP, or AVIF image.'); return; }
+        const gen = ++this._gen;
+        try {
+          const w = this.clientWidth || this.offsetWidth || MAX_DIM;
+          const url = await toDataUrl(file, w);
+          if (gen !== this._gen) return;
+          this._exitReframe(false);
+          const val = { u: url, s: 1, x: 0, y: 0 };
+          setSlot(this.id || '', val);
+          if (!this.id) { this._local = val; this._render(); }
+        } catch (err) { if (gen !== this._gen) return; this._setError('Could not read that image.'); }
+      }
+      _setError(msg) {
+        if (this._err) { this._err.remove(); this._err = null; }
+        if (!msg) return;
+        const d = document.createElement('div'); d.className = 'err'; d.textContent = msg;
+        this.shadowRoot.appendChild(d); this._err = d;
+        setTimeout(() => { if (this._err === d) { d.remove(); this._err = null; } }, 3000);
+      }
+      _reframes() { return this.hasAttribute('data-filled') && (this.getAttribute('fit') || 'cover') === 'cover'; }
+      _geom() {
+        const iw = this._img.naturalWidth, ih = this._img.naturalHeight;
+        const fw = this.clientWidth, fh = this.clientHeight;
+        if (!iw || !ih || !fw || !fh) return null;
+        return { iw, ih, fw, fh, base: Math.max(fw / iw, fh / ih) };
+      }
+      _clampView() {
+        const g = this._geom(); if (!g) return;
+        const mx = Math.max(0, (g.iw * g.base * this._view.s / g.fw - 1) * 50);
+        const my = Math.max(0, (g.ih * g.base * this._view.s / g.fh - 1) * 50);
+        this._view.x = Math.max(-mx, Math.min(mx, this._view.x));
+        this._view.y = Math.max(-my, Math.min(my, this._view.y));
+      }
+      _applyView() {
+        const g = this._geom(); const fit = this.getAttribute('fit') || 'cover';
+        if (fit !== 'cover' || !g) {
+          this._img.style.width = '100%'; this._img.style.height = '100%'; this._img.style.left = '50%'; this._img.style.top = '50%';
+          this._img.style.objectFit = fit; this._img.style.objectPosition = this.getAttribute('position') || '50% 50%'; return;
+        }
+        const k = g.base * this._view.s;
+        const w = (g.iw * k / g.fw * 100) + '%', h = (g.ih * k / g.fh * 100) + '%';
+        const l = (50 + this._view.x) + '%', t = (50 + this._view.y) + '%';
+        this._img.style.width = w; this._img.style.height = h; this._img.style.left = l; this._img.style.top = t; this._img.style.objectFit = '';
+        this._spill.style.width = w; this._spill.style.height = h; this._spill.style.left = l; this._spill.style.top = t;
+      }
+      _commitView() {
+        const v = { s: this._view.s, x: this._view.x, y: this._view.y };
+        if (this._userUrl) v.u = this._userUrl;
+        if (this.id) setSlot(this.id, v); else { this._local = v; }
+      }
+      _render() {
+        const mask = this.getAttribute('mask'); const shape = (this.getAttribute('shape') || 'rounded').toLowerCase();
+        let radius = '';
+        if (shape === 'circle') radius = '50%';
+        else if (shape === 'pill') radius = '9999px';
+        else if (shape === 'rounded') { const n = parseFloat(this.getAttribute('radius')); radius = (Number.isFinite(n) ? n : 12) + 'px'; }
+        this._frame.style.borderRadius = mask ? '' : radius; this._frame.style.clipPath = mask || '';
+        this._ring.style.borderRadius = mask ? '' : radius; this._ring.style.display = mask ? 'none' : '';
+        const editable = !!(window.omelette && window.omelette.writeFile);
+        this.toggleAttribute('data-editable', editable); this._sub.style.display = editable ? '' : 'none';
+        let stored = this.id ? getSlot(this.id) : this._local;
+        if (stored && stored.u && !/^data:image\//i.test(stored.u)) stored = null;
+        const srcAttr = this.getAttribute('src') || '';
+        this._userUrl = (stored && stored.u) || null;
+        const url = this._userUrl || srcAttr;
+        if (!this.hasAttribute('data-reframe')) {
+          this._view = { s: stored && Number.isFinite(stored.s) ? clampS(stored.s) : 1, x: stored && Number.isFinite(stored.x) ? stored.x : 0, y: stored && Number.isFinite(stored.y) ? stored.y : 0 };
+        }
+        this._cap.textContent = this.getAttribute('placeholder') || 'Drop an image';
+        if (url) {
+          if (this._img.getAttribute('src') !== url) { this._img.src = url; this._ghost.src = url; }
+          this._img.style.display = 'block'; this._empty.style.display = 'none'; this.setAttribute('data-filled', '');
+          this._clampView(); this._applyView();
+        } else {
+          this._img.style.display = 'none'; this._img.removeAttribute('src'); this._ghost.removeAttribute('src');
+          this._empty.style.display = 'flex'; this.removeAttribute('data-filled');
+        }
+      }
+    }
+    if (!customElements.get('image-slot')) customElements.define('image-slot', ImageSlot);
+  })();
+  </script>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel">
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2}
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+`;
+
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current; if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    offsetRef.current = {
+      x: Math.min(Math.max(PAD, window.innerWidth - w - PAD), Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(Math.max(PAD, window.innerHeight - h - PAD), Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    const ro = new ResizeObserver(clampToViewport); ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+  const dismiss = () => { setOpen(false); window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); };
+  const onDragStart = (e) => {
+    const panel = dragRef.current; if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right, startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => { offsetRef.current = { x: startRight - (ev.clientX - sx), y: startBottom - (ev.clientY - sy) }; clampToViewport(); };
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  };
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" onMouseDown={(e) => e.stopPropagation()} onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+function TweakSection({ label, children }) {
+  return <><div className="twk-sect">{label}</div>{children}</>;
+}
+
+function TweakRow({ label, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl"><span>{label}</span></div>
+      {children}
+    </div>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'} role="switch" aria-checked={!!value} onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const valueRef = React.useRef(value); valueRef.current = value;
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const i = Math.floor(((clientX - r.left - 2) / (r.width - 4)) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX); if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => { if (!trackRef.current) return; const v = segAt(ev.clientX); if (v !== valueRef.current) onChange(v); };
+    const up = () => { setDragging(false); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  };
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown} className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb" style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`, width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>{o.label}</button>)}
+      </div>
+    </TweakRow>
+  );
+}
+
+Object.assign(window, { useTweaks, TweaksPanel, TweakSection, TweakRow, TweakToggle, TweakRadio });
+  </script>
+
+  <script type="text/babel">
+const { useState } = React;
+
+function MeSlide() {
+  return (
+    <section className="me" data-screen-label="01 Me">
+      <header className="me__hdr">
+        <span>01 / 06 · ME</span>
+        <span>autocosm.xyz</span>
+      </header>
+      <div className="me__inner">
+        <p className="me__kicker">a self-generating universe</p>
+        <h1 className="me__title">autocosm.</h1>
+        <p className="me__pron">/ˈɔː.tə.kɒz.əm/&nbsp;·&nbsp;<em>n.</em></p>
+        <p className="me__defn">
+          a private cosmology, generating itself out of the things its author keeps —
+          capital, language, sound, image, and whatever else won't sit still.
+        </p>
+        <p className="me__sig">— and a personal site, in six rooms.</p>
+        <div className="me__meta">
+          <div className="me__meta-row"><span>WRITTEN BY</span><b>the author</b></div>
+          <div className="me__meta-row"><span>FILED</span><b>{new Date().getFullYear()}</b></div>
+          <div className="me__meta-row"><span>EDITION</span><b>I</b></div>
+        </div>
+      </div>
+      <footer className="me__foot">
+        <span>press › or arrow keys to enter</span>
+        <span className="me__rule" />
+      </footer>
+    </section>
+  );
+}
+
+function VerissimusSlide() {
+  const fy2425 = [
+    ["Olectra Greentech","8×","sold"],["IREDA","5×","sold"],["Kore Digital","8×","sold"],
+    ["Eternal","6×","holding"],["HAL","5×","holding"],["GMR Urban","5×","holding"],
+    ["Bluestar","5×","holding"],["BHEL","3.5×","holding"],["Laurus Labs","4×","holding"],
+    ["ZTech","3×","holding"],["JSW Steel","2×","holding"],["Vedanta","2×","holding"],
+  ];
+  const fy2526 = [
+    ["HindCopper","2×","sold"],["Chennai Petro","2×","sold"],["RPSG","+35%","sold"],
+    ["HBL Engineering","2×","holding"],["Alpex Solar","+30%","holding"],
+  ];
+  const fy2627 = [
+    ["MTAR Tech","2× / 3wk","sold"],["Gravita","+40%","holding"],
+    ["Praj Industries","+30%","holding"],["HPL Electric","+25%","holding"],
+  ];
+  return (
+    <section className="vr" data-screen-label="02 Verissimus">
+      <header className="vr__hdr">
+        <div className="vr__brand">
+          <span className="vr__brand-mark">⌬</span>
+          <span className="vr__brand-name">VERISSIMUS</span>
+          <span className="vr__brand-sub">CAPITAL · JOURNAL</span>
+        </div>
+        <div className="vr__ticker"><span className="vr__ticker-dot" /> LIVE · NSE / BSE · IST</div>
+      </header>
+      <div className="vr__lede">
+        <div className="vr__stat">
+          <div className="vr__stat-num">32<span className="vr__stat-pct">%</span></div>
+          <div className="vr__stat-cap">CAGR · last two years</div>
+        </div>
+        <div className="vr__split">
+          <div className="vr__split-row">
+            <span className="vr__split-label">FY24–25</span>
+            <span className="vr__split-bar"><span style={{ width: "84%" }} /></span>
+            <span className="vr__split-val">+42%</span>
+          </div>
+          <div className="vr__split-row">
+            <span className="vr__split-label">FY25–26</span>
+            <span className="vr__split-bar"><span style={{ width: "46%" }} /></span>
+            <span className="vr__split-val">+23%</span>
+          </div>
+          <div className="vr__split-row vr__split-row--mini">
+            <span className="vr__split-label">FY26–27</span>
+            <span className="vr__split-bar"><span style={{ width: "8%" }} /></span>
+            <span className="vr__split-val">one month in</span>
+          </div>
+        </div>
+        <div className="vr__bio">
+          <p>Ten years studying and investing in capital markets. At NYU I was part of <b>Stern IAG</b> — the only club allowed to invest Stern's endowment fund. Managing the fund <b>full-time since 2024</b>. Long-only India.</p>
+        </div>
+      </div>
+      <div className="vr__ledger">
+        <Ledger title="FY24–25 · Highlights" rows={fy2425} wide />
+        <Ledger title="FY25–26 · Highlights" rows={fy2526} />
+        <Ledger title="FY26–27 · Month 1" rows={fy2627} />
+      </div>
+      <footer className="vr__foot">
+        <span>all values · INR · multiples from cost</span>
+        <span>sold ● &nbsp; holding ○</span>
+        <span>vr.0{new Date().getFullYear()}</span>
+      </footer>
+    </section>
+  );
+}
+
+function Ledger({ title, rows, wide }) {
+  return (
+    <div className={"vr__lcol" + (wide ? " vr__lcol--wide" : "")}>
+      <div className="vr__lcol-h">{title}</div>
+      <ol className="vr__lcol-rows">
+        {rows.map(([name, mult, status], i) => (
+          <li key={i} className={"vr__lcol-row vr__lcol-row--" + status}>
+            <span className="vr__lcol-name">{name}</span>
+            <span className="vr__lcol-mult">{mult}</span>
+            <span className="vr__lcol-stat" aria-label={status}>{status === "sold" ? "●" : "○"}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function DyeusSlide() {
+  return (
+    <section className="dy" data-screen-label="03 Dyeus">
+      <div className="dy__stars" aria-hidden="true" />
+      <header className="dy__hdr">
+        <span>03 / 06 · DYEUS</span>
+        <span>the sky-father</span>
+      </header>
+      <div className="dy__hero">
+        <h1 className="dy__name">Dyḗus&nbsp;ph₂tḗr.</h1>
+        <p className="dy__pron">*dyew-&nbsp;·&nbsp;Proto-Indo-European</p>
+      </div>
+      <div className="dy__body">
+        <div className="dy__col">
+          <p className="dy__lead">Six thousand years ago, somebody pointed at the sky and made a sound. We are still saying their word.</p>
+        </div>
+        <div className="dy__col dy__col--cognates">
+          <div className="dy__cognate"><span className="dy__lang">Greek</span><b>Zeus</b></div>
+          <div className="dy__cognate"><span className="dy__lang">Latin</span><b>Iūpiter</b></div>
+          <div className="dy__cognate"><span className="dy__lang">Norse</span><b>Týr</b></div>
+          <div className="dy__cognate"><span className="dy__lang">Sanskrit</span><b>Dyaús</b></div>
+        </div>
+      </div>
+      <blockquote className="dy__quote">
+        <span className="dy__qmark">"</span>
+        The light hitting your eye now left its star before there were countries.
+        <cite>— a thing I keep remembering.</cite>
+      </blockquote>
+      <footer className="dy__foot">
+        <span>same root · different sky</span>
+        <span>~6,000 years and counting</span>
+      </footer>
+    </section>
+  );
+}
+
+function WorldviewSlide() {
+  const posts = [
+    { no: "I",   title: "AI is the anti-bubble.",                    dek: "On why the loudest 'bubble' call may be the most wrong — and what that means for the next decade.", url: "https://intellectualdegen.substack.com/p/ai-is-the-anti-bubble" },
+    { no: "II",  title: "Authenticity is dead.",                     dek: "On the strange economy that killed it — and what we should be honest about instead.", url: "https://intellectualdegen.substack.com/p/authenticity-is-dead" },
+    { no: "III", title: "Distribution is definitely not a moat.",    dek: "A reply to a thing everyone says. Distribution is a head start, not a wall.", url: "https://intellectualdegen.substack.com/p/distribution-is-definitely-not-a" },
+    { no: "IV",  title: "Picasso's greatest mistake.",               dek: "On what 'output' costs — the difference between a body of work and a pile of paintings.", url: "https://intellectualdegen.substack.com/p/picassos-greatest-mistake" },
+  ];
+  return (
+    <section className="wv" data-screen-label="04 Worldview">
+      <header className="wv__masthead">
+        <div className="wv__masthead-l">
+          <div className="wv__name">Worldview</div>
+          <div className="wv__rule" />
+          <div className="wv__tag">essays · half-formed thoughts · in public</div>
+        </div>
+        <div className="wv__masthead-r"><span>VOL. I</span><span>·</span><span>intellectualdegen.substack.com</span></div>
+      </header>
+      <div className="wv__essays">
+        <div className="wv__essays-h">
+          <span>Essays</span>
+          <span>{posts.length} dispatches</span>
+        </div>
+        <div className="wv__essays-grid">
+          {posts.map((p) => (
+            <a key={p.no} href={p.url} target="_blank" rel="noreferrer" className="wv__post">
+              <div className="wv__post-no">{p.no}.</div>
+              <h3 className="wv__post-title">{p.title}</h3>
+              <p className="wv__post-dek">{p.dek}</p>
+              <div className="wv__post-cta">read on substack →</div>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div className="wv__tweets">
+        <div className="wv__tweets-h">
+          <span>Posts · half-formed, in public</span>
+          <span>— drop tweet embeds here —</span>
+        </div>
+        <div className="wv__tweets-row">
+          {[0,1,2].map((j) => (
+            <div key={j} className="wv__tweet">
+              <div className="wv__tweet-head"><div className="wv__tweet-avatar" /></div>
+              <p className="wv__tweet-text">[ tweet placeholder ]</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MusicSlide() {
+  const lists = [
+    { id: "48cv127uqDzWKGE3R7mx6O", n: "I",   sub: "the first room." },
+    { id: "4OOfsQAGlaCsSODy7okyDR", n: "II",  sub: "after midnight." },
+    { id: "5NK7EE3BqQ8CX7cMYOXETi", n: "III", sub: "the long drive." },
+    { id: "6oWLCwN317KUWQsNR8TNFL", n: "IV",  sub: "if you need a hand." },
+  ];
+  return (
+    <section className="mu" data-screen-label="05 Music">
+      <header className="mu__hdr">
+        <div>
+          <div className="mu__name">Music</div>
+          <div className="mu__tag">four rooms · press play in any of them</div>
+        </div>
+        <div className="mu__nowplay">
+          <span className="mu__bars"><i /><i /><i /><i /></span>
+          <span>NOW SOUNDING</span>
+        </div>
+      </header>
+      <div className="mu__grid">
+        {lists.map((l) => (
+          <article key={l.id} className="mu__cell">
+            <header className="mu__cell-h">
+              <span className="mu__cell-n">{l.n}.</span>
+              <span className="mu__cell-sub">{l.sub}</span>
+            </header>
+            <div className="mu__cell-frame">
+              <iframe
+                src={`https://open.spotify.com/embed/playlist/${l.id}?utm_source=generator&theme=0`}
+                width="100%" height="100%" frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy" title={"Playlist " + l.n}
+              />
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function MoodboardSlide() {
+  const wall = [
+    { src: "project/uploads/18b0cc4a0417dd63328d49b1d3180920.jpg",                          cap: "we're listening." },
+    { src: "project/uploads/4e821e92e7adc4bd96a89c2433312093.jpg",                          cap: "" },
+    { src: "project/uploads/d940d2b04a7ab299eb6161242aca94fa.jpg",                          cap: "" },
+    { src: "project/uploads/0560cb6291532f853b38952942f95ef8.jpg",                          cap: "" },
+    { src: "project/uploads/GONE%20TO%20A%20PLACE%20WITHOUT.jpg",                           cap: "gone to a place without clocks." },
+    { src: "project/uploads/d3f741e990333aabdd7bee363a0c94d4.jpg",                          cap: "" },
+    { src: "project/uploads/There%20is%20no%20second%2C%20or%20higher%20self%20to%20search%20for..jpg", cap: "no second, higher self." },
+    { src: "project/uploads/Perpetuating%20the%20lie..jpg",                                 cap: "perpetuating the lie." },
+    { src: "project/uploads/philosophybits.jpg",                                             cap: "rochefoucauld." },
+    { src: "project/uploads/SEE%20HOW.jpg",                                                  cap: "do you see how infinite you are?" },
+    { src: "project/uploads/To%20name%20your.jpg",                                           cap: "to name your calling a hobby is blasphemy." },
+    { src: "project/uploads/5e2c298cbb5bc49be5aa554e108a76cd.jpg",                          cap: "" },
+    { src: "project/uploads/Untitled%20design%20(16).png",                                  cap: "" },
+    { src: "project/uploads/7c9ed803ff2d9bc17ba09664b146f97a.jpg",                          cap: "" },
+    { src: "project/uploads/1632a6e8e9ba002b73e3b5f2f1a425ae.jpg",                          cap: "" },
+    { src: "project/uploads/89223bce8917f8d207455c06a31a7a32.jpg",                          cap: "" },
+    { src: "project/uploads/f382bb94e51f9cbd6e2cc43f9cf4d764.jpg",                          cap: "" },
+    { src: "project/uploads/This%20conversation%20can%20serve%20no.jpg",                    cap: "" },
+    { src: "project/uploads/7fb262e7116cb3eb8c687c05f6ed586f.jpg",                          cap: "this conversation can serve no purpose anymore. goodbye." },
+  ];
+  return (
+    <section className="mb" data-screen-label="06 Moodboard">
+      <header className="mb__hdr">
+        <div className="mb__title">
+          <span>Moodboard</span>
+          <span className="mb__sep">·</span>
+          <em>a conversation in pictures</em>
+        </div>
+        <nav className="mb__beats">
+          <span>infinity</span><span>·</span><span>illusion</span><span>·</span><span>becoming</span><span>·</span><span>goodbye</span>
+        </nav>
+      </header>
+      <div className="mb__scroll">
+        <div className="mb__wall">
+          {wall.map((it, i) => (
+            <figure key={i} className="mb__cell" style={{ animationDelay: `${i * 0.025}s` }}>
+              <img src={it.src} alt="" loading="lazy" />
+              {it.cap && <figcaption>{it.cap}</figcaption>}
+            </figure>
+          ))}
+        </div>
+        <div className="mb__end">— fin —</div>
+      </div>
+    </section>
+  );
+}
+
+Object.assign(window, { MeSlide, VerissimusSlide, DyeusSlide, WorldviewSlide, MusicSlide, MoodboardSlide, Ledger });
+  </script>
+
+  <script type="text/babel">
+const { useEffect, useCallback } = React;
+const { useTweaks, TweaksPanel, TweakSection, TweakToggle, TweakRadio } = window;
+
+const TWEAK_DEFAULTS = { typeface: "serif", hud: true };
+
+const SLIDES = [
+  { id: "me",         label: "Me",         Comp: () => window.MeSlide         && <window.MeSlide /> },
+  { id: "verissimus", label: "Verissimus", Comp: () => window.VerissimusSlide && <window.VerissimusSlide /> },
+  { id: "dyeus",      label: "Dyeus",      Comp: () => window.DyeusSlide      && <window.DyeusSlide /> },
+  { id: "worldview",  label: "Worldview",  Comp: () => window.WorldviewSlide  && <window.WorldviewSlide /> },
+  { id: "music",      label: "Music",      Comp: () => window.MusicSlide      && <window.MusicSlide /> },
+  { id: "moodboard",  label: "Moodboard",  Comp: () => window.MoodboardSlide  && <window.MoodboardSlide /> },
+];
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [i, setI] = React.useState(0);
+  const slide = SLIDES[i];
+  const stepBy = useCallback((d) => setI((cur) => (cur + d + SLIDES.length) % SLIDES.length), []);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " " || e.key === "j") { stepBy(1); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "k") { stepBy(-1); e.preventDefault(); }
+      else if (/^[1-6]$/.test(e.key)) setI(parseInt(e.key, 10) - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [stepBy]);
+
+  useEffect(() => { document.body.classList.toggle("hud-off", !t.hud); }, [t.hud]);
+
+  return (
+    <div className={"deck tf-" + (t.typeface || "serif")}>
+      <div className="deck__viewport">
+        <div className="deck__slide" key={slide.id}>{slide.Comp()}</div>
+      </div>
+      <DeckNav i={i} count={SLIDES.length} slides={SLIDES} onPick={setI} onPrev={() => stepBy(-1)} onNext={() => stepBy(1)} />
+      <TweaksPanel>
+        <TweakSection label="Typeface">
+          <TweakRadio label="Body type" value={t.typeface} onChange={(v) => setTweak("typeface", v)}
+            options={[{ value: "serif", label: "Serif" }, { value: "sans", label: "Sans" }, { value: "mono", label: "Mono" }]} />
+        </TweakSection>
+        <TweakSection label="Atmosphere">
+          <TweakToggle label="Surveillance HUD" value={t.hud} onChange={(v) => setTweak("hud", v)} />
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+}
+
+function DeckNav({ i, count, slides, onPick, onPrev, onNext }) {
+  return (
+    <div className="dn">
+      <button className="dn__arrow" onClick={onPrev} aria-label="Previous">‹</button>
+      <div className="dn__dots">
+        {slides.map((s, idx) => (
+          <button key={s.id} className={"dn__dot " + (idx === i ? "is-active" : "")} onClick={() => onPick(idx)} aria-label={"Go to " + s.label} title={s.label}>
+            <span className="dn__dot-bar" />
+            <span className="dn__dot-label">{s.label}</span>
+          </button>
+        ))}
+      </div>
+      <button className="dn__arrow" onClick={onNext} aria-label="Next">›</button>
+      <div className="dn__count">{String(i + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}</div>
+    </div>
+  );
+}
+
+window.App = App;
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+  </script>
+</body>
+</html>
