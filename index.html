@@ -24,12 +24,10 @@ a { color: inherit; }
 
 .backdrop {
   position: fixed; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse at 30% 18%, rgba(245,225,180,0.18), transparent 55%),
-    radial-gradient(ellipse at 80% 90%, rgba(60,40,30,0.55), transparent 60%),
-    linear-gradient(135deg, #3a322b 0%, #2a2420 45%, #1d1916 100%);
+  background: #1d1916;
   overflow: hidden;
 }
+.backdrop__photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 .backdrop image-slot { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .backdrop .vignette {
   position: absolute; inset: 0; pointer-events: none;
@@ -496,7 +494,7 @@ body.hud-off .hud { opacity: 0; }
 </head>
 <body>
   <div class="backdrop">
-    <image-slot id="desk-photo" shape="rect" src="project/uploads/bg.jpg" placeholder="drop a desk photo"></image-slot>
+    <img class="backdrop__photo" src="project/bg.jpg" alt="" />
     <div class="grain"></div>
     <div class="vignette"></div>
   </div>
