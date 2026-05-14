@@ -283,7 +283,8 @@ a { color: inherit; }
 }
 .dy__hdr { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: clamp(9px, 1.05cqi, 11.5px); letter-spacing: 0.28em; text-transform: uppercase; color: rgba(240,238,230,0.5); position: relative; z-index: 1; }
 .dy__center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; z-index: 1; gap: clamp(20px, 3.5cqi, 44px); }
-.dy__name { margin: 0; font-size: clamp(64px, 14cqi, 220px); font-weight: 300; letter-spacing: -0.04em; line-height: 0.92; color: #fff8e6; font-style: italic; font-family: 'Fraunces','Cambria','Georgia',serif; }
+.dy__name { margin: 0; font-size: clamp(64px, 14cqi, 220px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.92; color: #fff8e6; font-style: italic; font-family: 'Cambria','Georgia',serif; }
+.dy__tagline { margin: 0; font-size: clamp(12px, 1.6cqi, 18px); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(240,238,230,0.5); font-family: 'SF Mono','Menlo',monospace; font-style: normal; font-weight: 400; }
 .dy__body-text { margin: 0 auto; max-width: 34em; font-size: clamp(14px, 2cqi, 22px); line-height: 1.5; letter-spacing: -0.01em; color: rgba(240,238,230,0.82); font-style: italic; font-weight: 300; font-family: 'Fraunces','Cambria','Georgia',serif; }
 .dy__foot { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(240,238,230,0.45); border-top: 1px solid rgba(240,238,230,0.15); padding-top: clamp(8px, 1.2cqi, 14px); position: relative; z-index: 1; }
 
@@ -1148,6 +1149,7 @@ function DyeusSlide() {
       </header>
       <div className="dy__center">
         <h1 className="dy__name">Dyeus.</h1>
+        <p className="dy__tagline">become your story</p>
         <p className="dy__body-text">
           A company at the intersection of the ancient and the future.
           We combine multimodal astrology, Jungian psychology, and human
@@ -1156,7 +1158,7 @@ function DyeusSlide() {
         </p>
       </div>
       <footer className="dy__foot">
-        <span>become your story</span>
+        <a href="https://www.dyeus.app" target="_blank" rel="noreferrer" style={{color:"inherit",textDecoration:"none",letterSpacing:"0.18em"}}>www.dyeus.app</a>
         <span>App Store · June 8th</span>
       </footer>
     </section>
