@@ -473,10 +473,15 @@ body.hud-off .hud { opacity: 0; }
   .dy__body-text { font-size: clamp(14px, 3.8vw, 20px); }
 
   /* Worldview */
-  .wv { padding: 14px 16px; gap: 10px; overflow-y: auto; }
+  .wv { display: flex; flex-direction: column; overflow-y: auto; height: 100%; padding: 14px 16px; gap: 10px; }
   .wv__name { font-size: clamp(24px, 9vw, 48px); }
-  .wv__essays-grid { grid-template-columns: 1fr; grid-template-rows: unset; gap: 8px; }
-  .wv__tweets-row { grid-template-columns: 1fr; gap: 8px; }
+  .wv__masthead-r { display: none; }
+  .wv__essays { flex: none; }
+  .wv__essays-grid { grid-template-columns: 1fr; gap: 8px; }
+  .wv__essay-link { font-size: clamp(15px, 4.5vw, 22px); padding: 14px 16px; }
+  .wv__tweets { flex: none; }
+  .wv__tweets-row { grid-template-columns: 1fr; gap: 8px; max-height: none; overflow: visible; }
+  .wv__tweet-wrap { zoom: 1; }
 
   /* Music */
   .mu { padding: 14px 16px; gap: 10px; overflow-y: auto; }
