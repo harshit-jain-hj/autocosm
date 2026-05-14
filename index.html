@@ -284,6 +284,8 @@ a { color: inherit; }
 .dy__body { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 4cqi, 56px); align-items: center; position: relative; z-index: 1; }
 .dy__lead { margin: 0; font-size: clamp(15px, 2.4cqi, 28px); line-height: 1.35; letter-spacing: -0.015em; color: rgba(240,238,230,0.9); font-style: italic; }
 .dy__col--cognates { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 1.6cqi, 18px); }
+.dy__col--pillars  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(10px, 1.6cqi, 18px); }
+.dy__pill-sub { font-size: clamp(11px, 1.5cqi, 17px); color: rgba(240,238,230,0.65); line-height: 1.4; font-style: normal; font-family: var(--body,'Cambria','Georgia',serif); margin-top: 4px; }
 .dy__cognate { display: flex; flex-direction: column; gap: 2px; border-left: 1px solid rgba(240,238,230,0.18); padding-left: clamp(8px, 1.4cqi, 14px); }
 .dy__lang { font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.2em; text-transform: uppercase; color: rgba(240,238,230,0.5); }
 .dy__cognate b { font-size: clamp(18px, 3.2cqi, 38px); font-weight: 600; letter-spacing: -0.02em; color: #fff8e6; }
@@ -397,8 +399,8 @@ a { color: inherit; }
 @keyframes mbCellIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .mb__cell img { width: 100%; display: block; transition: transform 0.4s; }
 .mb__cell:hover img { transform: scale(1.02); }
-.mb__cell figcaption { position: absolute; inset: auto 0 0 0; padding: 24px 10px 8px; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85)); color: rgba(255,255,255,0.95); font-size: clamp(9px, 1.05cqi, 12px); font-style: italic; font-family: 'Cambria','Georgia',serif; letter-spacing: 0.01em; opacity: 0; transition: opacity 0.2s; }
-.mb__cell:hover figcaption { opacity: 1; }
+.mb__cell figcaption { display: none; }
+.mb__cell:hover figcaption { opacity: 0; }
 .mb__end { text-align: center; padding: 24px 0 36px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(240,238,230,0.4); }
 
 /* HUD */
@@ -1150,31 +1152,47 @@ function DyeusSlide() {
       <div className="dy__stars" aria-hidden="true" />
       <header className="dy__hdr">
         <span>03 / 06 · DYEUS</span>
-        <span>the sky-father</span>
+        <span>alchemy · consciousness</span>
       </header>
       <div className="dy__hero">
-        <h1 className="dy__name">Dyḗus&nbsp;ph₂tḗr.</h1>
-        <p className="dy__pron">*dyew-&nbsp;·&nbsp;Proto-Indo-European</p>
+        <h1 className="dy__name">Dyeus.</h1>
+        <p className="dy__pron">understand your patterns. become your story.</p>
       </div>
       <div className="dy__body">
         <div className="dy__col">
-          <p className="dy__lead">Six thousand years ago, somebody pointed at the sky and made a sound. We are still saying their word.</p>
+          <p className="dy__lead">
+            A company at the intersection of the ancient and the analytical.
+            Products that combine multimodal astrology, Jungian psychology,
+            and human self-narrative to reveal the patterns you live inside
+            and help you become who you are meant to be.
+          </p>
         </div>
-        <div className="dy__col dy__col--cognates">
-          <div className="dy__cognate"><span className="dy__lang">Greek</span><b>Zeus</b></div>
-          <div className="dy__cognate"><span className="dy__lang">Latin</span><b>Iūpiter</b></div>
-          <div className="dy__cognate"><span className="dy__lang">Norse</span><b>Týr</b></div>
-          <div className="dy__cognate"><span className="dy__lang">Sanskrit</span><b>Dyaús</b></div>
+        <div className="dy__col dy__col--pillars">
+          <div className="dy__cognate">
+            <span className="dy__lang">Pillar I</span>
+            <b>Astrology</b>
+            <span className="dy__pill-sub">multimodal, not predictive</span>
+          </div>
+          <div className="dy__cognate">
+            <span className="dy__lang">Pillar II</span>
+            <b>Jung</b>
+            <span className="dy__pill-sub">archetypes and shadow</span>
+          </div>
+          <div className="dy__cognate">
+            <span className="dy__lang">Pillar III</span>
+            <b>Narrative</b>
+            <span className="dy__pill-sub">you are the story</span>
+          </div>
         </div>
       </div>
       <blockquote className="dy__quote">
         <span className="dy__qmark">"</span>
-        The light hitting your eye now left its star before there were countries.
-        <cite>a thing I keep remembering.</cite>
+        You are not living a life. You are living a story.
+        <cite>App Store · June 8th, 2026</cite>
       </blockquote>
       <footer className="dy__foot">
-        <span>same root · different sky</span>
-        <span>~6,000 years and counting</span>
+        <span>dyeus · alchemy and consciousness</span>
+        <span>launching June 8th</span>
       </footer>
     </section>
   );
@@ -1309,9 +1327,6 @@ function MoodboardSlide() {
           <span className="mb__sep">·</span>
           <em>a conversation in pictures</em>
         </div>
-        <nav className="mb__beats">
-          <span>infinity</span><span>·</span><span>illusion</span><span>·</span><span>becoming</span><span>·</span><span>goodbye</span>
-        </nav>
       </header>
       <div className="mb__scroll">
         <div className="mb__wall">
