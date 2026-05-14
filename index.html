@@ -305,10 +305,9 @@ a { color: inherit; }
 .wv__masthead-r { display: flex; gap: 8px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.18em; text-transform: uppercase; color: #6b5742; }
 .wv__essays { display: flex; flex-direction: column; gap: clamp(6px, 1cqi, 10px); min-height: 0; }
 .wv__essays-h { display: flex; justify-content: space-between; align-items: baseline; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #806542; }
-.wv__essays-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: clamp(6px, 1cqi, 10px); min-height: 0; flex: 1; }
-.wv__embed-cell { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border: 1px solid rgba(107,87,66,0.14); border-radius: 4px; background: #f7f2e7; }
-.wv__embed-title { padding: clamp(5px,0.8cqi,8px) clamp(8px,1.4cqi,14px) clamp(3px,0.5cqi,5px); font-size: clamp(10px, 1.4cqi, 14px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; color: #1a1612; font-family: var(--body,'Cambria','Georgia',serif); flex: 0 0 auto; border-bottom: 1px solid rgba(107,87,66,0.14); background: #f7f2e7; position: relative; z-index: 1; }
-.wv__embed-frame { flex: 1; min-height: 0; border: 0; display: block; width: 100%; background: #f7f2e7; }
+.wv__essays-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(6px, 1cqi, 10px); flex: 1; }
+.wv__essay-link { display: flex; align-items: flex-start; padding: clamp(10px,1.6cqi,18px) clamp(12px,1.8cqi,20px); border: 1px solid rgba(107,87,66,0.18); border-radius: 4px; background: #f7f2e7; text-decoration: none; color: #1a1612; font-size: clamp(13px, 1.8cqi, 20px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; font-family: var(--body,'Cambria','Georgia',serif); transition: background 0.15s, border-color 0.15s; cursor: pointer; }
+.wv__essay-link:hover { background: #ede5d3; border-color: rgba(107,87,66,0.36); }
 .wv__tweets { display: flex; flex-direction: column; gap: clamp(4px, 0.7cqi, 8px); border-top: 1px dashed rgba(107,87,66,0.3); padding-top: clamp(6px, 0.9cqi, 10px); flex-shrink: 0; }
 .wv__tweets-h { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.18em; text-transform: uppercase; color: #806542; }
 .wv__tweets-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(6px, 1cqi, 10px); align-items: start; max-height: clamp(110px, 13cqi, 150px); overflow: hidden; }
@@ -1186,16 +1185,15 @@ function WorldviewSlide() {
         </div>
         <div className="wv__essays-grid">
           {posts.map((p) => (
-            <div key={p.slug} className="wv__embed-cell">
-              <div className="wv__embed-title">{p.title}</div>
-              <iframe
-                className="wv__embed-frame"
-                src={`https://open.substack.com/pub/intellectualdegen/p/${p.slug}`}
-                title={p.title}
-                loading="lazy"
-                sandbox="allow-scripts allow-same-origin allow-popups"
-              />
-            </div>
+            <a
+              key={p.slug}
+              className="wv__essay-link"
+              href={`https://intellectualdegen.substack.com/p/${p.slug}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {p.title}
+            </a>
           ))}
         </div>
       </div>
