@@ -314,13 +314,9 @@ a { color: inherit; }
 .wv__post-cta { margin-top: auto; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #b9572d; font-style: normal; }
 .wv__tweets { display: flex; flex-direction: column; gap: clamp(6px, 1cqi, 10px); border-top: 1px dashed rgba(107,87,66,0.3); padding-top: clamp(8px, 1.2cqi, 14px); }
 .wv__tweets-h { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.18em; text-transform: uppercase; color: #806542; }
-.wv__tweets-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(6px, 1cqi, 10px); }
-.wv__tweet { background: #f7f2e7; border: 1px dashed rgba(107,87,66,0.3); padding: clamp(6px, 1cqi, 10px) clamp(8px, 1.4cqi, 14px); font-family: 'Helvetica Neue',Helvetica,sans-serif; font-size: clamp(9px, 1.1cqi, 11px); display: flex; align-items: center; gap: 8px; min-height: 0; }
-.wv__tweet-head { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; }
-.wv__tweet-avatar { width: 18px; height: 18px; border-radius: 50%; background: #b9572d; opacity: 0.5; }
-.wv__tweet-hand { display: none; }
-.wv__tweet-text { margin: 0; color: #4d3f2e; font-style: italic; line-height: 1.2; flex: 1; font-size: clamp(9px, 1.1cqi, 11px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wv__tweet-foot { display: none; }
+.wv__tweets-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(6px, 1cqi, 10px); align-items: start; }
+.wv__tweet-wrap { overflow: hidden; border-radius: 4px; min-width: 0; }
+.wv__tweet-wrap .twitter-tweet { margin: 0 !important; }
 
 /* 05 MUSIC */
 .mu {
@@ -488,7 +484,7 @@ body.hud-off .hud { opacity: 0; }
   .wv { padding: 14px 16px; gap: 10px; overflow-y: auto; }
   .wv__name { font-size: clamp(24px, 9vw, 48px); }
   .wv__essays-grid { grid-template-columns: 1fr; grid-template-rows: unset; gap: 8px; }
-  .wv__tweets-row { grid-template-columns: 1fr; }
+  .wv__tweets-row { grid-template-columns: 1fr; gap: 8px; }
 
   /* Music */
   .mu { padding: 14px 16px; gap: 10px; overflow-y: auto; }
@@ -1166,6 +1162,10 @@ function DyeusSlide() {
 }
 
 function WorldviewSlide() {
+  React.useEffect(() => {
+    if (window.twttr && window.twttr.widgets) window.twttr.widgets.load();
+  }, []);
+
   const posts = [
     { no: "I",   title: "AI is the anti-bubble.",                    dek: "On why the loudest bubble call may be the most wrong, and what that means for the next decade.", url: "https://intellectualdegen.substack.com/p/ai-is-the-anti-bubble" },
     { no: "II",  title: "Authenticity is dead.",                     dek: "On the strange economy that killed it, and what we should be honest about instead.", url: "https://intellectualdegen.substack.com/p/authenticity-is-dead" },
@@ -1201,15 +1201,27 @@ function WorldviewSlide() {
       <div className="wv__tweets">
         <div className="wv__tweets-h">
           <span>Posts · half-formed, in public</span>
-          <span>drop tweet embeds here</span>
+          <span>@harshitj_</span>
         </div>
         <div className="wv__tweets-row">
-          {[0,1,2].map((j) => (
-            <div key={j} className="wv__tweet">
-              <div className="wv__tweet-head"><div className="wv__tweet-avatar" /></div>
-              <p className="wv__tweet-text">[ tweet placeholder ]</p>
-            </div>
-          ))}
+          <div className="wv__tweet-wrap">
+            <blockquote className="twitter-tweet" data-theme="light" data-cards="hidden" data-dnt="true">
+              <p lang="en" dir="ltr">&quot;You&apos;re too delusional&quot;<br/><br/>Nah man<br/><br/>I&apos;m not delusional enough</p>
+              <a href="https://twitter.com/harshitj_/status/2030412412197744930">March 7, 2026</a>
+            </blockquote>
+          </div>
+          <div className="wv__tweet-wrap">
+            <blockquote className="twitter-tweet" data-theme="light" data-cards="hidden" data-dnt="true">
+              <p lang="en" dir="ltr">Every moment i spend on an internet that has Indian men I understand Ted Kaczynski better</p>
+              <a href="https://twitter.com/harshitj_/status/2007886174774559092">January 4, 2026</a>
+            </blockquote>
+          </div>
+          <div className="wv__tweet-wrap">
+            <blockquote className="twitter-tweet" data-theme="light" data-cards="hidden" data-dnt="true">
+              <p lang="en" dir="ltr">Everyone has an aesthetic few people have style fewer people have sauce<br/><br/>All i care about is sauce</p>
+              <a href="https://twitter.com/harshitj_/status/2014749558883103000">January 23, 2026</a>
+            </blockquote>
+          </div>
         </div>
       </div>
     </section>
@@ -1389,5 +1401,6 @@ window.App = App;
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
   </script>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </body>
 </html>
