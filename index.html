@@ -303,15 +303,12 @@ a { color: inherit; }
 .wv__rule { width: 1px; height: clamp(20px, 3cqi, 36px); background: #6b5742; opacity: 0.4; }
 .wv__tag { font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.16em; text-transform: uppercase; color: #6b5742; max-width: 18em; line-height: 1.4; }
 .wv__masthead-r { display: flex; gap: 8px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.18em; text-transform: uppercase; color: #6b5742; }
-.wv__essays { display: flex; flex-direction: column; gap: clamp(8px, 1.4cqi, 14px); min-height: 0; }
+.wv__essays { display: flex; flex-direction: column; gap: clamp(6px, 1cqi, 10px); min-height: 0; }
 .wv__essays-h { display: flex; justify-content: space-between; align-items: baseline; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #806542; }
-.wv__essays-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: clamp(8px, 1.4cqi, 16px); min-height: 0; flex: 1; }
-.wv__post { display: flex; flex-direction: column; padding: clamp(10px, 1.6cqi, 18px); background: #f7f2e7; border: 1px solid rgba(107,87,66,0.18); text-decoration: none; color: inherit; position: relative; transition: transform 0.2s, box-shadow 0.2s; overflow: hidden; min-height: 0; gap: clamp(4px, 0.8cqi, 8px); }
-.wv__post:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -10px rgba(60,40,20,0.3); }
-.wv__post-no { font-family: 'Cambria','Georgia',serif; font-size: clamp(11px, 1.4cqi, 14px); letter-spacing: 0.18em; color: #b9572d; font-style: normal; font-weight: 700; text-transform: uppercase; position: static; }
-.wv__post-title { margin: 0; font-size: clamp(14px, 2.2cqi, 24px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: #1a1612; font-family: var(--body, 'Cambria','Georgia',serif); }
-.wv__post-dek { margin: 0; font-size: clamp(10px, 1.3cqi, 13px); line-height: 1.35; color: #4d3f2e; font-style: italic; letter-spacing: -0.005em; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.wv__post-cta { margin-top: auto; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #b9572d; font-style: normal; }
+.wv__essays-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(6px, 1cqi, 10px); min-height: 0; flex: 1; }
+.wv__embed-cell { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border: 1px solid rgba(107,87,66,0.14); border-radius: 4px; background: #f7f2e7; }
+.wv__embed-title { padding: clamp(6px,1cqi,10px) clamp(8px,1.4cqi,14px) clamp(4px,0.6cqi,6px); font-size: clamp(11px, 1.6cqi, 16px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; color: #1a1612; font-family: var(--body,'Cambria','Georgia',serif); flex: 0 0 auto; }
+.wv__embed-frame { flex: 1; min-height: 0; border: 0; display: block; width: 100%; background: #f7f2e7; }
 .wv__tweets { display: flex; flex-direction: column; gap: clamp(6px, 1cqi, 10px); border-top: 1px dashed rgba(107,87,66,0.3); padding-top: clamp(8px, 1.2cqi, 14px); }
 .wv__tweets-h { display: flex; justify-content: space-between; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(9px, 1cqi, 11px); letter-spacing: 0.18em; text-transform: uppercase; color: #806542; }
 .wv__tweets-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(6px, 1cqi, 10px); align-items: start; }
@@ -1167,10 +1164,10 @@ function WorldviewSlide() {
   }, []);
 
   const posts = [
-    { no: "I",   title: "AI is the anti-bubble.",                    dek: "On why the loudest bubble call may be the most wrong, and what that means for the next decade.", url: "https://intellectualdegen.substack.com/p/ai-is-the-anti-bubble" },
-    { no: "II",  title: "Authenticity is dead.",                     dek: "On the strange economy that killed it, and what we should be honest about instead.", url: "https://intellectualdegen.substack.com/p/authenticity-is-dead" },
-    { no: "III", title: "Distribution is definitely not a moat.",    dek: "A reply to a thing everyone says. Distribution is a head start, not a wall.", url: "https://intellectualdegen.substack.com/p/distribution-is-definitely-not-a" },
-    { no: "IV",  title: "Picasso's greatest mistake.",               dek: "On what output costs, and the difference between a body of work and a pile of paintings.", url: "https://intellectualdegen.substack.com/p/picassos-greatest-mistake" },
+    { title: "AI is the anti-bubble.",                 slug: "ai-is-the-anti-bubble" },
+    { title: "Authenticity is dead.",                  slug: "authenticity-is-dead" },
+    { title: "Distribution is definitely not a moat.", slug: "distribution-is-definitely-not-a" },
+    { title: "Picasso's greatest mistake.",            slug: "picassos-greatest-mistake" },
   ];
   return (
     <section className="wv" data-screen-label="04 Worldview">
@@ -1189,12 +1186,16 @@ function WorldviewSlide() {
         </div>
         <div className="wv__essays-grid">
           {posts.map((p) => (
-            <a key={p.no} href={p.url} target="_blank" rel="noreferrer" className="wv__post">
-              <div className="wv__post-no">{p.no}.</div>
-              <h3 className="wv__post-title">{p.title}</h3>
-              <p className="wv__post-dek">{p.dek}</p>
-              <div className="wv__post-cta">read on substack →</div>
-            </a>
+            <div key={p.slug} className="wv__embed-cell">
+              <div className="wv__embed-title">{p.title}</div>
+              <iframe
+                className="wv__embed-frame"
+                src={`https://open.substack.com/pub/intellectualdegen/p/${p.slug}`}
+                title={p.title}
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+              />
+            </div>
           ))}
         </div>
       </div>
