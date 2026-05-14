@@ -372,10 +372,8 @@ a { color: inherit; }
   display: grid; grid-template-rows: auto 1fr; padding: 0;
   font-family: var(--body, 'Cambria','Georgia',serif); position: relative;
 }
-.mb__hdr { display: flex; justify-content: space-between; align-items: baseline; padding: clamp(12px, 2cqi, 22px) clamp(18px, 3cqi, 36px); border-bottom: 1px solid rgba(240,238,230,0.08); background: rgba(13,12,10,0.85); backdrop-filter: blur(8px); position: relative; z-index: 2; }
-.mb__title { display: flex; align-items: baseline; gap: 10px; font-size: clamp(15px, 2.4cqi, 26px); font-weight: 700; letter-spacing: -0.025em; color: #fff8e6; }
-.mb__title em { font-size: 0.55em; font-weight: 400; letter-spacing: 0.02em; color: rgba(240,238,230,0.55); font-family: 'Cambria','Georgia',serif; }
-.mb__sep { color: rgba(240,238,230,0.35); }
+.mb__hdr { display: flex; justify-content: center; align-items: center; padding: clamp(12px, 2cqi, 22px) clamp(18px, 3cqi, 36px); border-bottom: 1px solid rgba(240,238,230,0.08); background: rgba(13,12,10,0.85); backdrop-filter: blur(8px); position: relative; z-index: 2; }
+.mb__title { font-size: clamp(13px, 2cqi, 22px); font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: #fff8e6; font-family: 'Helvetica Neue','Helvetica',Arial,sans-serif; }
 .mb__beats { display: flex; gap: 10px; font-family: 'SF Mono','Menlo',monospace; font-size: clamp(8.5px, 1cqi, 11px); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(240,238,230,0.5); }
 .mb__scroll { overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; position: relative; }
 .mb__scroll::-webkit-scrollbar { width: 6px; }
@@ -1229,10 +1227,10 @@ function WorldviewSlide() {
 
 function MusicSlide() {
   const lists = [
-    { id: "48cv127uqDzWKGE3R7mx6O", n: "I",   sub: "the first room." },
-    { id: "4OOfsQAGlaCsSODy7okyDR", n: "II",  sub: "after midnight." },
-    { id: "5NK7EE3BqQ8CX7cMYOXETi", n: "III", sub: "the long drive." },
-    { id: "6oWLCwN317KUWQsNR8TNFL", n: "IV",  sub: "if you need a hand." },
+    { id: "48cv127uqDzWKGE3R7mx6O", n: "I",   sub: "killshot" },
+    { id: "4OOfsQAGlaCsSODy7okyDR", n: "II",  sub: "yearnmaxxer" },
+    { id: "5NK7EE3BqQ8CX7cMYOXETi", n: "III", sub: "self explanatory" },
+    { id: "6oWLCwN317KUWQsNR8TNFL", n: "IV",  sub: "arise" },
   ];
   return (
     <section className="mu" data-screen-label="05 Music">
@@ -1300,11 +1298,7 @@ function MoodboardSlide() {
   return (
     <section className="mb" data-screen-label="06 Moodboard">
       <header className="mb__hdr">
-        <div className="mb__title">
-          <span>Moodboard</span>
-          <span className="mb__sep">·</span>
-          <em>a conversation in pictures</em>
-        </div>
+        <div className="mb__title">"MOODBOARD"</div>
       </header>
       <div className="mb__scroll">
         <div className="mb__wall">
