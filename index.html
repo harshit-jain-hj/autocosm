@@ -201,7 +201,7 @@ a { color: inherit; }
   color: #d8e6dc; display: grid; grid-template-rows: auto auto 1fr auto;
   padding: clamp(14px, 2.4cqi, 28px) clamp(20px, 3.4cqi, 44px);
   gap: clamp(10px, 1.8cqi, 22px);
-  font-family: 'SF Mono','Menlo','Consolas',monospace; position: relative; overflow: hidden;
+  font-family: 'SF Mono','Menlo','Consolas',monospace; position: relative; overflow: hidden; min-height: 0;
 }
 .vr::before {
   content: ""; position: absolute; inset: 0;
@@ -237,7 +237,13 @@ a { color: inherit; }
 .vr__bio { font-family: 'Cambria','Georgia',serif; font-size: clamp(11px, 1.5cqi, 16px); line-height: 1.5; color: rgba(220,235,225,0.85); letter-spacing: -0.01em; padding-left: clamp(12px, 2cqi, 24px); border-left: 1px solid rgba(120,180,140,0.18); }
 .vr__bio p { margin: 0; }
 .vr__bio b { color: oklch(0.86 0.14 145); font-weight: 600; font-style: italic; }
-.vr__ledger { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: clamp(12px, 2cqi, 26px); min-height: 0; overflow: hidden; }
+.vr__scroll { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: clamp(12px, 2cqi, 26px); scrollbar-width: thin; scrollbar-color: rgba(120,180,140,0.25) transparent; }
+.vr__scroll::-webkit-scrollbar { width: 4px; }
+.vr__scroll::-webkit-scrollbar-thumb { background: rgba(120,180,140,0.25); border-radius: 2px; }
+.vr__ledger { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: clamp(12px, 2cqi, 26px); flex-shrink: 0; }
+.vr__manifesto { border-top: 1px dashed rgba(120,180,140,0.22); padding-top: clamp(16px, 2.4cqi, 28px); padding-bottom: clamp(16px, 2.4cqi, 28px); display: flex; flex-direction: column; gap: clamp(10px, 1.6cqi, 18px); flex-shrink: 0; }
+.vr__manifesto p { margin: 0; font-family: 'Cambria','Georgia',serif; font-size: clamp(13px, 1.65cqi, 17px); line-height: 1.65; color: rgba(220,235,225,0.78); letter-spacing: -0.01em; }
+.vr__manifesto-q { font-style: italic; color: oklch(0.85 0.14 145) !important; }
 .vr__lcol--wide { grid-column: span 2; }
 .vr__lcol--wide .vr__lcol-rows { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(6, auto); grid-auto-flow: column; column-gap: clamp(10px, 1.8cqi, 22px); align-content: start; }
 .vr__lcol { display: flex; flex-direction: column; min-height: 0; }
@@ -419,43 +425,26 @@ body.hud-off .hud { opacity: 0; }
 /* ── Mobile — drop the laptop chrome, go full-screen ── */
 @media (max-width: 768px) {
   /* Fill the whole screen */
-  .stage-room {
-    padding: 0;
-    align-items: stretch;
-    justify-content: stretch;
-  }
-  .laptop {
-    width: 100%;
-    max-height: none;
-    aspect-ratio: unset;
-    height: 100%;
-    filter: none;
-    border-radius: 0;
-  }
-  .laptop__screen {
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-  }
-  .laptop__screen-inner {
-    border-radius: 0;
-  }
-  /* Hide laptop decorations */
-  .laptop__camera,
-  .laptop__notch,
-  .laptop__glare,
-  .laptop__base,
-  .laptop__lip { display: none; }
+  .stage-room { padding: 0; align-items: stretch; justify-content: stretch; }
+  .laptop { width: 100%; max-height: none; aspect-ratio: unset; height: 100%; filter: none; border-radius: 0; }
+  .laptop__screen { border-radius: 0; padding: 0; box-shadow: none; }
+  .laptop__screen-inner { border-radius: 0; }
+  .laptop__camera, .laptop__notch, .laptop__glare, .laptop__base, .laptop__lip { display: none; }
 
-  /* Nav bar — bigger tap targets */
-  .dn { height: 48px; padding: 0 10px; gap: 6px; }
-  .dn__arrow { width: 32px; height: 32px; font-size: 18px; }
-  .dn__dot { padding: 6px 6px; }
-  .dn__dot-label { font-size: 8px; letter-spacing: 0.14em; }
+  /* Nav bar */
+  .dn { height: 48px; padding: 0 10px; gap: 4px; }
+  .dn__arrow { width: 32px; height: 32px; font-size: 20px; }
+  .dn__dot { padding: 6px 5px; }
+  .dn__dot-label { font-size: 7.5px; letter-spacing: 0.12em; }
+  .dn__count { font-size: 9px; }
 
-  /* Me slide */
-  .me__title { font-size: clamp(44px, 18vw, 80px); }
-  .me__defn  { font-size: clamp(13px, 3.5vw, 18px); }
+  /* Me slide — flex column so inner truly centers */
+  .me { display: flex; flex-direction: column; }
+  .me__hdr, .me__foot { padding: 14px 20px; font-size: 9px; }
+  .me__inner { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 28px; text-align: center; }
+  .me__title { font-size: clamp(52px, 19vw, 88px); }
+  .me__defn  { font-size: clamp(14px, 4vw, 18px); }
+  .me__meta  { margin-top: 24px; }
 
   /* Verissimus — stack columns */
   .vr { padding: 14px 16px; gap: 12px; grid-template-rows: auto auto auto 1fr auto; overflow-y: auto; }
@@ -463,6 +452,7 @@ body.hud-off .hud { opacity: 0; }
   .vr__stat { border-right: none; border-bottom: 1px solid rgba(120,180,140,0.18); padding-right: 0; padding-bottom: 10px; }
   .vr__stat-num { font-size: clamp(48px, 16vw, 80px); }
   .vr__bio { border-left: none; border-top: 1px solid rgba(120,180,140,0.18); padding-left: 0; padding-top: 10px; }
+  .vr__scroll { overflow-y: visible; min-height: 0; }
   .vr__ledger { grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
   .vr__lcol--wide { grid-column: span 2; }
   .vr__lcol--wide .vr__lcol-rows { grid-template-columns: 1fr 1fr; grid-template-rows: unset; }
@@ -492,7 +482,7 @@ body.hud-off .hud { opacity: 0; }
   /* Moodboard */
   .mb__wall { column-count: 2; }
 
-  /* HUD — hide on mobile (too cluttered) */
+  /* HUD — hide on mobile */
   .hud { display: none; }
 }
   </style>
@@ -1101,10 +1091,22 @@ function VerissimusSlide() {
           <p>Ten years studying and investing in capital markets. At NYU I was part of <b>Stern IAG</b>, the only club allowed to invest Stern's endowment fund. Managing the fund <b>full-time since 2024</b>. Long-only India.</p>
         </div>
       </div>
-      <div className="vr__ledger">
-        <Ledger title="FY24–25 · Highlights" rows={fy2425} wide />
-        <Ledger title="FY25–26 · Highlights" rows={fy2526} />
-        <Ledger title="FY26–27 · Month 1" rows={fy2627} />
+      <div className="vr__scroll">
+        <div className="vr__ledger">
+          <Ledger title="FY24–25 · Highlights" rows={fy2425} wide />
+          <Ledger title="FY25–26 · Highlights" rows={fy2526} />
+          <Ledger title="FY26–27 · Month 1" rows={fy2627} />
+        </div>
+        <div className="vr__manifesto">
+          <p>The only reason I fell in love with finance was because I saw the artistry within it.</p>
+          <p>I love finance and it will continue to be a big part of who I am.</p>
+          <p>But I have too much within me to spend the rest of my life reading 10Ks in front of a Bloomberg.</p>
+          <p>Finance is wasted on soulless extraction when it could be used to inform and structure the greatest value creation ever seen.</p>
+          <p>It is at its best when used as a medium to worldbuild.</p>
+          <p>Investing is your understanding of the truth + your understanding of the collective misunderstanding of the truth + unaccountable uncertainty</p>
+          <p>After that it's all about timing, finesse, and knowing when to sell.</p>
+          <p className="vr__manifesto-q">Do you want to be right, or do you want to place a well informed bet at finding out the truth?</p>
+        </div>
       </div>
       <footer className="vr__foot">
         <span>all values · INR · multiples from cost</span>
