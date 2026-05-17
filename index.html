@@ -446,16 +446,17 @@ body.hud-off .hud { opacity: 0; }
   .me__defn  { font-size: clamp(14px, 4vw, 18px); }
   .me__meta  { margin-top: 24px; }
 
-  /* Verissimus — stack columns */
-  .vr { padding: 14px 16px; gap: 12px; grid-template-rows: auto auto auto 1fr auto; overflow-y: auto; }
-  .vr__lede { grid-template-columns: 1fr; gap: 10px; }
+  /* Verissimus — full scroll flex */
+  .vr { display: flex; flex-direction: column; overflow-y: auto; height: 100%; padding: 14px 16px; gap: 12px; }
+  .vr__lede { grid-template-columns: 1fr; gap: 10px; flex-shrink: 0; }
   .vr__stat { border-right: none; border-bottom: 1px solid rgba(120,180,140,0.18); padding-right: 0; padding-bottom: 10px; }
   .vr__stat-num { font-size: clamp(48px, 16vw, 80px); }
   .vr__bio { border-left: none; border-top: 1px solid rgba(120,180,140,0.18); padding-left: 0; padding-top: 10px; }
-  .vr__scroll { overflow-y: visible; min-height: 0; }
-  .vr__ledger { grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
+  .vr__scroll { flex: none; overflow-y: visible; }
+  .vr__ledger { grid-template-columns: 1fr 1fr; gap: 10px; }
   .vr__lcol--wide { grid-column: span 2; }
   .vr__lcol--wide .vr__lcol-rows { grid-template-columns: 1fr 1fr; grid-template-rows: unset; }
+  .vr__foot { flex-shrink: 0; }
 
   /* Dyeus */
   .dy { padding: 16px 20px; gap: 14px; }
@@ -1099,6 +1100,7 @@ function VerissimusSlide() {
         </div>
         <div className="vr__manifesto">
           <p>The only reason I fell in love with finance was because I saw the artistry within it.</p>
+          <p>But I'm not a finance bro, I'm a worldbuilder.</p>
           <p>I love finance and it will continue to be a big part of who I am.</p>
           <p>But I have too much within me to spend the rest of my life reading 10Ks in front of a Bloomberg.</p>
           <p>Finance is wasted on soulless extraction when it could be used to inform and structure the greatest value creation ever seen.</p>
