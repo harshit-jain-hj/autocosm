@@ -74,3 +74,6 @@ body[data-world=home] .header-center,body[data-world=home] .site-footer,body[dat
 
 /* Center the wordmark independently of the image and portal. */
 .entrance-name{display:block;text-align:center}.entrance-name h1{width:100%;text-align:center}
+
+/* Center the introduction beneath the Autocosm wordmark. */
+.home-note{display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px}.home-note>p{width:100%;max-width:600px;margin:0 auto}.home-note .home-socials{width:100%;max-width:400px;grid-template-columns:1fr;gap:12px}.home-note .home-entry-links{width:100%;margin-top:0}
